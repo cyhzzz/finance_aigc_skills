@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>年年有鱼·盘前展望 | 于晴于理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'rice-paper': '#F7F5F0',
+                        'daiqing': '#2C4A3E',
+                        'cinnabar': '#B85450',
+                        'bronze-gold': '#C9A961',
+                        'ink-black': '#1A1A1A',
+                        'charcoal': '#4A4A4A',
+                        'silver-gray': '#8A8A8A',
+                        'light-gray': '#E8E6E1'
+                    },
+                    fontFamily: {
+                        'serif-cn': ['"Noto Serif SC"', 'serif'],
+                        'sans-cn': ['"Noto Sans SC"', 'sans-serif'],
+                        'mono': ['"Roboto Mono"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 传统纹样背景 */
+        .wave-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='20' viewBox='0 0 100 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 Q 25 20 50 10 T 100 10' stroke='%23C9A961' stroke-width='0.5' fill='none' opacity='0.3'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+        }
+        
+        /* 竖排文字支持 */
+        .vertical-text {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+        }
+        
+        /* 细线装饰 */
+        .gold-line {
+            background: linear-gradient(to right, transparent, #C9A961, transparent);
+            height: 1px;
+        }
+        
+        /* 数据卡片悬停效果 */
+        .data-card {
+            transition: all 0.3s ease;
+        }
+        .data-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 74, 62, 0.1);
+        }
+        
+        /* 打印优化 */
+        @media print {
+            body { background: white; }
+            .no-print { display: none; }
+            .shadow-lg { box-shadow: none; }
+        }
+        
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F7F5F0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #C9A961;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-rice-paper min-h-screen font-sans-cn text-charcoal antialiased">
+
+    <!-- 主容器 -->
+    <div class="max-w-4xl mx-auto p-6 md:p-12">
+        
+        <!-- 顶部栏 -->
+        <header class="flex justify-between items-start mb-8 border-b border-bronze-gold/30 pb-4">
+            <div class="flex items-center gap-4">
+                <!-- 栏目标识 -->
+                <div class="relative">
+                    <h1 class="font-serif-cn text-3xl font-bold text-daiqing tracking-wider">
+                        年年有鱼
+                    </h1>
+                    <div class="absolute -top-2 -right-4 w-6 h-6 opacity-20">
+                        <svg viewBox="0 0 24 24" fill="#C9A961">
+                            <path d="M12 2C8 2 5 5 5 9c0 2 1 4 3 5v2c0 2-1 3-2 4 2 1 4-1 6-3 2 2 4 4 6 3-1-1-2-2-2-4v-2c2-1 3-3 3-5 0-4-3-7-7-7z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="h-8 w-px bg-bronze-gold/50"></div>
+                <div class="text-sm">
+                    <p class="font-serif-cn text-daiqing font-semibold">盘前展望</p>
+                    <p class="text-silver-gray text-xs mt-0.5">于晴于理 · 观点早评</p>
+                </div>
+            </div>
+            
+            <div class="text-right text-xs text-silver-gray space-y-1">
+                <p class="font-mono">2026年2月7日</p>
+                <p>星期五</p>
+                <p class="text-bronze-gold">农历正月初十</p>
+            </div>
+        </header>
+
+        <!-- 核心观点区（视觉锚点） -->
+        <section class="mb-10 text-center py-8 relative">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-bronze-gold to-transparent"></div>
+            
+            <h2 class="font-serif-cn text-3xl md:text-4xl font-bold text-ink-black mb-4 leading-relaxed">
+                节前最后一周，态势竟然如此
+            </h2>
+            
+            <div class="inline-block bg-daiqing/5 border-l-4 border-bronze-gold px-6 py-3 rounded-r-lg">
+                <p class="font-serif-cn text-xl text-daiqing font-semibold">
+                    窄幅震荡格局，大概率延续全周
+                </p>
+            </div>
+            
+            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-bronze-gold to-transparent"></div>
+        </section>
+
+        <!-- 主内容区：左右分栏 -->
+        <div class="grid md:grid-cols-12 gap-8">
+            
+            <!-- 左侧正文区（7列） -->
+            <main class="md:col-span-8 space-y-6">
+                
+                <!-- 市场综述 -->
+                <article class="prose prose-stone max-w-none">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-1.5 h-6 bg-daiqing rounded-full"></div>
+                        <h3 class="font-serif-cn text-lg font-bold text-daiqing">市场综述</h3>
+                    </div>
+                    
+                    <div class="bg-white/50 rounded-lg p-5 border border-light-gray leading-relaxed text-justify">
+                        <p class="mb-3">
+                            2月6日，市场呈现<strong class="text-daiqing">低开高走、午后回落</strong>的震荡格局。上证指数收于<span class="font-mono font-bold text-daiqing text-lg">4065点</span>，是非常标准的震荡市延续走势，指数层面的信号很清晰。
+                        </p>
+                        <p>
+                            两市成交额约<span class="font-mono font-bold">2.15万亿元</span>，较前日缩量约<span class="text-cinnabar font-mono">300亿元</span>，<span class="bg-cinnabar/10 px-1 rounded">流动性降级明显</span>。
+                        </p>
+                    </div>
+                </article>
+
+                <!-- 政策解读 -->
+                <article>
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-1.5 h-6 bg-daiqing rounded-full"></div>
+                        <h3 class="font-serif-cn text-lg font-bold text-daiqing">政策解读</h3>
+                        <span class="text-xs bg-bronze-gold/20 text-bronze-gold px-2 py-0.5 rounded-full">证监会1号文</span>
+                    </div>
+                    
+                    <div class="bg-white/50 rounded-lg p-5 border border-light-gray">
+                        <p class="leading-relaxed mb-3">
+                            证监会于2026年2月6日发布《关于境内资产境外发行资产支持证券代币的监管指引》，旨在为现实世界资产（RWA）代币化建立明确的监管框架。
+                        </p>
+                        <div class="bg-daiqing/5 border-l-3 border-daiqing pl-4 py-2 rounded-r text-sm">
+                            <p class="font-semibold text-daiqing mb-1">核心原则：境内严禁、境外严管</p>
+                            <p class="text-charcoal/80">具备跨境证券化、ABS经验的头部券商和投行有业务增量预期，<span class="text-daiqing font-medium">非银金融板块受益</span>，但大概率会冲击区块链概念股。</p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 贵金属动向 -->
+                <article>
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-1.5 h-6 bg-cinnabar rounded-full"></div>
+                        <h3 class="font-serif-cn text-lg font-bold text-daiqing">贵金属动向</h3>
+                        <span class="text-xs bg-cinnabar/10 text-cinnabar px-2 py-0.5 rounded-full">央行增持</span>
+                    </div>
+                    
+                    <div class="bg-white/50 rounded-lg p-5 border border-light-gray">
+                        <p class="leading-relaxed mb-3">
+                            2月7日，央行公布数据显示，1月末黄金储备为<span class="font-mono font-bold text-cinnabar text-lg">7419万盎司</span>，较上月末增加<span class="font-mono font-bold text-cinnabar">4万盎司</span>。
+                        </p>
+                        <div class="flex gap-4 text-sm">
+                            <div class="flex-1 bg-rice-paper p-3 rounded border border-bronze-gold/30 text-center">
+                                <p class="text-silver-gray text-xs mb-1">连续增持</p>
+                                <p class="font-mono font-bold text-daiqing">15个月</p>
+                            </div>
+                            <div class="flex-1 bg-rice-paper p-3 rounded border border-bronze-gold/30 text-center">
+                                <p class="text-silver-gray text-xs mb-1">占储备比重</p>
+                                <p class="font-mono font-bold text-daiqing">9.7%</p>
+                            </div>
+                            <div class="flex-1 bg-rice-paper p-3 rounded border border-bronze-gold/30 text-center">
+                                <p class="text-silver-gray text-xs mb-1">全球平均</p>
+                                <p class="font-mono font-bold text-silver-gray">~15%</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-charcoal/80 mt-3 italic">
+                            后续市场公开操作仍有增持黄金、适度减持美债的预期。
+                        </p>
+                    </div>
+                </article>
+
+                <!-- 外围市场 -->
+                <article>
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-1.5 h-6 bg-daiqing rounded-full"></div>
+                        <h3 class="font-serif-cn text-lg font-bold text-daiqing">外围市场</h3>
+                    </div>
+                    
+                    <div class="bg-white/50 rounded-lg p-5 border border-light-gray">
+                        <p class="leading-relaxed mb-3">
+                            2月6日美股三大指数涨幅明显，<span class="font-medium">道指创历史新高</span>：
+                        </p>
+                        <div class="grid grid-cols-3 gap-3 mb-3">
+                            <div class="text-center p-3 bg-daiqing/5 rounded-lg">
+                                <p class="text-xs text-silver-gray mb-1">道琼斯</p>
+                                <p class="font-mono font-bold text-daiqing">历史新高</p>
+                            </div>
+                            <div class="text-center p-3 bg-daiqing/5 rounded-lg">
+                                <p class="text-xs text-silver-gray mb-1">纳斯达克</p>
+                                <p class="font-mono font-bold text-daiqing">+2.18%</p>
+                            </div>
+                            <div class="text-center p-3 bg-daiqing/5 rounded-lg">
+                                <p class="text-xs text-silver-gray mb-1">标普500</p>
+                                <p class="font-mono font-bold text-daiqing">+1.97%</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-charcoal/80">
+                            主要得益于美联储降息预期升温、地缘政治风险缓和以及科技巨头巨额AI支出计划。美股大涨通过情绪传导和外盘带动效应，或对今日A股开盘形成提振，特别是<span class="text-daiqing font-medium">AI算力、芯片</span>等科技板块有望跟随回暖。
+                        </p>
+                    </div>
+                </article>
+
+                <!-- 板块热点 -->
+                <article>
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-1.5 h-6 bg-bronze-gold rounded-full"></div>
+                        <h3 class="font-serif-cn text-lg font-bold text-daiqing">鱼群动向</h3>
+                        <span class="text-xs bg-bronze-gold/20 text-bronze-gold px-2 py-0.5 rounded-full">固态电池异动</span>
+                    </div>
+                    
+                    <div class="bg-white/50 rounded-lg p-5 border border-light-gray">
+                        <p class="leading-relaxed mb-3">
+                            边际变化明显的是<strong class="text-daiqing">固态电池板块</strong>。2月6日，板块成交额<span class="font-mono font-bold">610亿元</span>，占两市总成交额比重的<span class="font-mono font-bold text-bronze-gold">2.85%</span>，较前一交易日提升<span class="text-bronze-gold font-bold">0.8个百分点</span>。
+                        </p>
+                        <div class="bg-bronze-gold/5 border border-bronze-gold/20 rounded-lg p-3 text-sm">
+                            <div class="flex justify-between items-center">
+                                <span class="text-charcoal/70">板块市值</span>
+                                <span class="font-mono font-bold text-daiqing">~4万亿元</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-1">
+                                <span class="text-charcoal/70">占两市总市值</span>
+                                <span class="font-mono font-bold text-daiqing">3.26%</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-charcoal/80 mt-3">
+                            体现出市场在缩量的情况下，有活跃资金涌入该板块，还是有些许分量的。
+                        </p>
+                    </div>
+                </article>
+
+                <!-- 本周策略 -->
+                <article class="bg-daiqing/5 rounded-lg p-6 border border-daiqing/20">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-1.5 h-6 bg-daiqing rounded-full"></div>
+                        <h3 class="font-serif-cn text-xl font-bold text-daiqing">本周策略</h3>
+                    </div>
+                    
+                    <div class="space-y-3 text-charcoal leading-relaxed">
+                        <p>
+                            回到A股市场，重点说本周的整体判断：<span class="font-bold text-daiqing">窄幅震荡格局，大概率会延续全周</span>。
+                        </p>
+                        <p>
+                            虽然我们不倾向做过于消极的预判，但春节前的资金行为规律很明确，上周两市流动性已经明显降级。一方面是行情本身震荡所致，另一方面，本周市场的春节氛围会明显加重，量能低迷或逐步成为常态。
+                        </p>
+                        <div class="bg-white/70 rounded-lg p-4 my-4 border-l-4 border-bronze-gold">
+                            <p class="font-medium text-daiqing mb-2">关键判断</p>
+                            <p class="text-sm">若没有增量资金，指数就很难走出趋势性行情，大概率就是在当前区间内反复震荡。只要没有重大利好/利空消息刺激，整个震荡区间很难被有效打破。</p>
+                        </div>
+                        <p>
+                            <span class="font-medium text-cinnabar">这里要提醒一个细节：</span>不同指数的震荡强弱是分化的。深圳成指、中证500/1000，整体更偏向弱势震荡；而上证指数在这个位置，结构上更接近强势震荡，板块与指数的节奏差异，要区分开。
+                        </p>
+                        <p class="font-medium text-daiqing">
+                            操作与应对上，继续验证此前的震荡判断即可，重点盯紧两点：一是震荡区间的延续性，二是如果出现突破，一定要看清突破的方向、量能配合与级别有效性，不要盲目追涨杀跌。
+                        </p>
+                    </div>
+                </article>
+
+            </main>
+
+            <!-- 右侧数据栏（5列） -->
+            <aside class="md:col-span-4 space-y-4">
+                
+                <!-- 市场速览卡片 -->
+                <div class="bg-white rounded-lg shadow-sm border border-light-gray p-5 sticky top-4">
+                    <h4 class="font-serif-cn text-bronze-gold font-bold mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-bronze-gold rounded-full"></span>
+                        市场速览
+                    </h4>
+                    
+                    <div class="space-y-3">
+                        <div class="data-card bg-rice-paper rounded-lg p-3 border border-light-gray">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs text-silver-gray">上证指数</span>
+                                <span class="text-xs text-silver-gray">2月6日</span>
+                            </div>
+                            <div class="font-mono text-2xl font-bold text-daiqing">4065</div>
+                            <div class="text-xs text-silver-gray mt-1">震荡延续</div>
+                        </div>
+
+                        <div class="data-card bg-rice-paper rounded-lg p-3 border border-light-gray">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs text-silver-gray">两市成交额</span>
+                                <span class="text-xs text-cinnabar">↓缩量</span>
+                            </div>
+                            <div class="font-mono text-2xl font-bold text-daiqing">2.15<span class="text-sm">万亿</span></div>
+                            <div class="text-xs text-cinnabar mt-1">-300亿元</div>
+                        </div>
+
+                        <div class="data-card bg-rice-paper rounded-lg p-3 border border-light-gray">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs text-silver-gray">纳斯达克</span>
+                                <span class="text-xs text-daiqing">隔夜</span>
+                            </div>
+                            <div class="font-mono text-2xl font-bold text-daiqing">+2.18%</div>
+                            <div class="text-xs text-silver-gray mt-1">道指创历史新高</div>
+                        </div>
+
+                        <div class="data-card bg-rice-paper rounded-lg p-3 border border-light-gray">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs text-silver-gray">黄金储备</span>
+                                <span class="text-xs text-cinnabar">+4万盎司</span>
+                            </div>
+                            <div class="font-mono text-2xl font-bold text-cinnabar">7419<span class="text-sm">万盎司</span></div>
+                            <div class="text-xs text-silver-gray mt-1">连续15个月增持</div>
+                        </div>
+
+                        <div class="data-card bg-bronze-gold/10 rounded-lg p-3 border border-bronze-gold/30">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs text-bronze-gold font-medium">固态电池成交占比</span>
+                                <span class="text-xs text-bronze-gold">↑0.8%</span>
+                            </div>
+                            <div class="font-mono text-2xl font-bold text-bronze-gold">2.85%</div>
+                            <div class="text-xs text-bronze-gold/70 mt-1">资金涌入明显</div>
+                        </div>
+                    </div>
+
+                    <!-- 策略提示 -->
+                    <div class="mt-5 pt-4 border-t border-light-gray">
+                        <div class="bg-daiqing/5 rounded-lg p-3 text-center">
+                            <p class="text-xs text-silver-gray mb-1">本周基调</p>
+                            <p class="font-serif-cn font-bold text-daiqing">窄幅震荡</p>
+                            <p class="text-xs text-charcoal/70 mt-1">适应震荡，不追涨杀跌</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快速导航 -->
+                <div class="bg-white rounded-lg shadow-sm border border-light-gray p-4">
+                    <h4 class="text-xs font-bold text-silver-gray uppercase tracking-wider mb-3">本期要点</h4>
+                    <nav class="space-y-2 text-sm">
+                        <a href="#" class="block text-charcoal hover:text-daiqing transition-colors py-1 border-b border-light-gray/50">市场综述</a>
+                        <a href="#" class="block text-charcoal hover:text-daiqing transition-colors py-1 border-b border-light-gray/50">RWA监管新政</a>
+                        <a href="#" class="block text-charcoal hover:text-daiqing transition-colors py-1 border-b border-light-gray/50">央行增持黄金</a>
+                        <a href="#" class="block text-charcoal hover:text-daiqing transition-colors py-1 border-b border-light-gray/50">美股创新高</a>
+                        <a href="#" class="block text-charcoal hover:text-daiqing transition-colors py-1">固态电池异动</a>
+                    </nav>
+                </div>
+
+            </aside>
+        </div>
+
+        <!-- 底部区域 -->
+        <footer class="mt-12 pt-8 border-t border-bronze-gold/30">
+            
+            <!-- 订阅引导 -->
+            <div class="bg-daiqing rounded-lg p-6 text-white mb-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div class="relative z-10 flex justify-between items-center">
+                    <div>
+                        <h4 class="font-serif-cn text-xl font-bold mb-2">签约【年年有"鱼"】股票池</h4>
+                        <p class="text-white/80 text-sm">解锁更多深度内容 · 让投资像呼吸一样简单</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="bg-white/20 backdrop-blur rounded-lg p-3 inline-block">
+                            <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm4 4h6v2H9V9zm0 4h6v2H9v-2z"/>
+                            </svg>
+                        </div>
+                        <p class="text-xs text-white/60 mt-2">扫码立即订阅</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 风险提示 -->
+            <div class="text-xs text-silver-gray leading-relaxed space-y-2 border-t border-light-gray pt-4">
+                <p class="font-bold text-charcoal">风险提示：</p>
+                <p>本材料为股票池投顾服务产品（以下简称"股票池"）业务介绍材料，不构成对投资者的任何投资建议，不代表向投资者主动推介股票池业务，具体业务流程及内容以实际开通为准。申万宏源证券、申万宏源西部证券（以下统称"申万宏源"）及其证券投资顾问遵循诚实信用原则，勤勉、审慎地为客户提供证券投资顾问服务，但不对投资者投资收益状况或本金不受损失作出任何承诺，请独立做出投资决策并自担投资风险。</p>
+                <p>上述操盘理念仅供参考，请注意投资顾问在实际操作中因行情变化等因素影响可能存在变化。股票池历史业绩不预示其未来业绩表现，股票池风险等级为R3、适合风险承受能力等级为C3及以上的普通投资者，投资者订阅前需仔细阅读《申万宏源证券投顾社区服务协议》《申万宏源证券互联网平台证券投资顾问业务风险揭示书》等法律文件，了解股票池具体情况，并根据自身的风险承受能力，投资期限和投资目标，选择适合的股票池。</p>
+                <p class="text-center text-bronze-gold font-medium pt-2">市场有风险，投资需谨慎</p>
+            </div>
+
+            <!-- 品牌页脚 -->
+            <div class="flex justify-between items-center mt-6 pt-4 border-t border-light-gray text-xs text-silver-gray">
+                <div class="flex items-center gap-2">
+                    <span class="font-serif-cn font-bold text-daiqing">申万宏源证券</span>
+                    <span>|</span>
+                    <span>于晴于理</span>
+                </div>
+                <div class="font-mono">
+                    年年有鱼 · 第240208期
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- 装饰元素：底部水波纹 -->
+    <div class="wave-pattern h-4 opacity-30 mt-8"></div>
+
+</body>
+</html>

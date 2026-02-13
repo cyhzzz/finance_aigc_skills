@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小红书笔记预览模板 - Vital Geometry</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* 主容器 */
+        .preview-container {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        /* 第一部分：标题候选列表 */
+        .title-section {
+            background: #fff;
+            padding: 24px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .section-label {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 12px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .title-list {
+            list-style: none;
+        }
+
+        .title-item {
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            background: #fafafa;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1.5px solid transparent;
+            position: relative;
+        }
+
+        .title-item:hover {
+            background: #f5f5f5;
+        }
+
+        .title-item.selected {
+            background: #fff;
+            border-color: #e8e8e8;
+            color: #1a1a1a;
+        }
+
+        .title-item.selected::after {
+            content: '✓';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #1a1a1a;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .title-number {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: #e0e0e0;
+            color: #666;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-size: 10px;
+            margin-right: 8px;
+        }
+
+        .title-item.selected .title-number {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        /* 第二部分：轮播笔记图卡片区域 - Vital Geometry */
+        .carousel-section {
+            background: linear-gradient(135deg, #f8f6f4 0%, #f0ece8 100%);
+            padding: 24px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 背景动态图案 */
+        .carousel-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(255, 107, 107, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 193, 7, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            border-radius: 12px;
+            overflow: visible;
+            z-index: 1;
+        }
+
+        /* 多层阴影 - 深度增强 */
+        .card-shadow-wrapper {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border-radius: 12px;
+            z-index: 0;
+        }
+
+        .card-shadow-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #1a1a1a;
+            transition: all 0.3s;
+            z-index: 20;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .carousel-btn:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .carousel-btn.prev { left: 6px; }
+        .carousel-btn.next { right: 6px; }
+
+        .page-indicator {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.98);
+            color: #666;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            z-index: 20;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .carousel-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            padding: 0;
+            z-index: 10;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+            z-index: 10;
+        }
+
+        /* Vital Geometry 风格卡片 */
+        .note-card {
+            width: 100%;
+            height: 100%;
+            padding: 36px 28px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            background: #fafaf8;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 顶部彩色边界条 - 渐变 */
+        .note-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 14px;
+            background: linear-gradient(90deg, #1a1a1a 0%, #4a4a4a 50%, #1a1a1a 100%);
+        }
+
+        /* 动态装饰元素 */
+        .card-decoration {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        /* 大圆圈装饰 */
+        .card-decoration.circle-main {
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(26, 26, 26, 0.03);
+            border-radius: 50%;
+            top: -80px;
+            right: -80px;
+        }
+
+        /* 点阵圆圈 */
+        .card-decoration.circle-dots {
+            width: 120px;
+            height: 120px;
+            bottom: 60px;
+            left: 60px;
+        }
+
+        /* 波浪装饰 */
+        .card-decoration.wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            opacity: 0.03;
+        }
+
+        /* 次级包含框 - 带纹理 */
+        .card-accent-box {
+            background: linear-gradient(135deg, #f5f0e8 0%, #ebe4d8 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 16px 0;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        /* 点阵纹理 */
+        .card-accent-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(circle, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 8px 8px;
+            opacity: 0.5;
+        }
+
+        /* 动态形状装饰 */
+        .dynamic-shape {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .dynamic-shape.dot-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            padding: 8px;
+        }
+
+        .dynamic-shape.dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        .dynamic-shape.wave-line {
+            width: 100%;
+            height: 20px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 4px,
+                rgba(0, 0, 0, 0.03) 4px,
+                rgba(0, 0, 0, 0.03) 8px
+            );
+        }
+
+        /* 卡片内容 */
+        .card-content {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-number {
+            font-size: 9px;
+            color: #bbb;
+            letter-spacing: 3px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-number::after {
+            content: '';
+            width: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, #ddd, transparent);
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            line-height: 1.3;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+            position: relative;
+        }
+
+        /* 标题下方的装饰点 */
+        .card-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 30px;
+            height: 3px;
+            background: #ff6b6b;
+            border-radius: 2px;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .card-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .card-divider::before,
+        .card-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ddd, transparent);
+        }
+
+        .card-divider-dot {
+            width: 6px;
+            height: 6px;
+            background: #ddd;
+            border-radius: 50%;
+        }
+
+        .card-highlight {
+            font-size: 36px;
+            font-weight: 300;
+            color: #1a1a1a;
+            margin: 20px 0;
+            letter-spacing: -1px;
+            line-height: 1.2;
+            position: relative;
+        }
+
+        .card-highlight span {
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+
+        /* 彩色装饰圆点 */
+        .highlight-dots {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .highlight-dots .dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #ffc107;
+        }
+
+        .card-content-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: auto;
+        }
+
+        /* 列表样式 - 动态 */
+        .card-list {
+            margin: 16px 0;
+        }
+
+        .card-list-item {
+            padding: 12px 0;
+            font-size: 13px;
+            color: #333;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .card-list-item::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            margin-right: 12px;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .card-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .card-list-item strong {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-right: 4px;
+        }
+
+        /* 数据展示框 - 增强 */
+        .data-box {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            padding: 20px;
+            margin: 16px 0;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 数据框装饰角 */
+        .data-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, transparent 50%, rgba(255, 193, 7, 0.05) 50%);
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .data-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        /* 卡片底部 */
+        .card-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            position: relative;
+        }
+
+        /* 底部装饰线 */
+        .card-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.05) 2px,
+                rgba(0,0,0,0.05) 4px
+            );
+        }
+
+        .card-footer-text {
+            font-size: 9px;
+            color: #bbb;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-footer-text::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #ddd;
+            border-radius: 50%;
+        }
+
+        .card-tag {
+            display: inline-block;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            color: white;
+            font-size: 9px;
+            letter-spacing: 0.5px;
+            border-radius: 3px;
+            margin-top: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 封面页特殊样式 */
+        .card-cover {
+            background: #fafaf8;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .card-cover .card-title {
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        .card-cover .card-title::after {
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+        }
+
+        .card-cover .card-highlight {
+            font-size: 52px;
+            margin: 32px 0;
+        }
+
+        /* 推广页特殊样式 - 浅色版本 */
+        .card-promo {
+            background: #fafaf8;
+        }
+
+        .card-promo::before {
+            background: linear-gradient(90deg, #ff6b6b 0%, #ffc107 100%);
+            height: 16px;
+        }
+
+        .card-promo .card-number {
+            color: #999;
+        }
+
+        .card-promo .card-title::after {
+            background: #ff6b6b;
+        }
+
+        .card-promo .card-list-item::before {
+            background: #ff6b6b;
+        }
+
+        .card-promo .card-accent-box {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.08) 0%, rgba(255, 193, 7, 0.08) 100%);
+            border-color: rgba(255, 107, 107, 0.15);
+        }
+
+        .card-promo .card-footer-text {
+            color: #ccc;
+        }
+
+        /* 圆点指示器 - 动态 */
+        .dots-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ddd;
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            width: 20px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #1a1a1a 0%, #333 100%);
+        }
+
+        /* 第三部分：正文区域 */
+        .content-section {
+            background: #fff;
+            padding: 24px 20px;
+        }
+
+        .note-content {
+            font-size: 14px;
+            line-height: 1.9;
+            color: #333;
+            white-space: pre-line;
+        }
+
+        .risk-warning {
+            margin-top: 16px;
+            padding: 12px 14px;
+            background: #fafafa;
+            border-left: 3px solid #ff6b6b;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .tag {
+            font-size: 11px;
+            color: #666;
+            background: #f5f5f5;
+            padding: 5px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+            transition: all 0.2s;
+        }
+
+        .tag:hover {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            body { padding: 0; }
+            .preview-container {
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .note-card { padding: 28px 20px; }
+            .card-title { font-size: 20px; }
+            .card-highlight { font-size: 28px; }
+            .card-cover .card-title { font-size: 22px; }
+            .card-cover .card-highlight { font-size: 44px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <!-- 第一部分：标题候选列表 -->
+        <div class="title-section">
+            <div class="section-label">TITLE SELECTION · 标题候选</div>
+            <ul class="title-list" id="titleList">
+                <li class="title-item selected" data-index="0">
+                    <span class="title-number">1</span>
+                    22岁职场新人必看！ETF定投3步走，380万不是梦💰
+                </li>
+                <li class="title-item" data-index="1">
+                    <span class="title-number">2</span>
+                    月薪5000也能理财？普通人财富增值秘籍📈
+                </li>
+                <li class="title-item" data-index="2">
+                    <span class="title-number">3</span>
+                    别让钱睡大觉！职场新人理财入门指南💡
+                </li>
+                <li class="title-item" data-index="3">
+                    <span class="title-number">4</span>
+                    3步开启定投之旅，复利的力量太惊人了吧！
+                </li>
+                <li class="title-item" data-index="4">
+                    <span class="title-number">5</span>
+                    理财是有钱人的专利？错！22岁开始也不晚
+                </li>
+                <li class="title-item" data-index="5">
+                    <span class="title-number">6</span>
+                    从0到380万，职场新人如何靠定投实现财务自由？
+                </li>
+                <li class="title-item" data-index="6">
+                    <span class="title-number">7</span>
+                    新手必看！ETF定投避坑指南，速存！
+                </li>
+                <li class="title-item" data-index="7">
+                    <span class="title-number">8</span>
+                    职场新人理财的第一课：定投ETF稳稳的幸福
+                </li>
+                <li class="title-item" data-index="8">
+                    <span class="title-number">9</span>
+                    22岁开始每月1000，30年后竟然有这么多？！
+                </li>
+                <li class="title-item" data-index="9">
+                    <span class="title-number">10</span>
+                    小白理财入门：3步学会ETF定投，太简单了
+                </li>
+            </ul>
+        </div>
+
+        <!-- 第二部分：轮播笔记图卡片区域 - Vital Geometry -->
+        <div class="carousel-section">
+            <div class="section-label">PREVIEW · 笔记图预览</div>
+            <div class="carousel-container">
+                <div class="card-shadow-wrapper"></div>
+                <button class="carousel-btn prev" onclick="changeSlide(-1)">&#10094;</button>
+                <button class="carousel-btn next" onclick="changeSlide(1)">&#10095;</button>
+                <div class="page-indicator">[ <span id="currentPage">1</span> / <span id="totalPages">7</span> ]</div>
+
+                <div class="carousel-track" id="carouselTrack">
+                    <!-- 封面页 -->
+                    <div class="carousel-slide active">
+                        <div class="note-card card-cover">
+                            <div class="card-decoration circle-main"></div>
+                            <div class="dynamic-shape dot-grid" style="position: absolute; top: 80px; left: 30px; opacity: 0.3;">
+                                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                                <div class="dot"></div><div class="dot"></div>
+                                <div class="dot"></div><div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div><div class="dot"></div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-number">COVER · 01</div>
+                                <div class="card-title">22岁职场新人必看</div>
+                                <div class="card-subtitle">ETF定投3步走</div>
+                                <div class="card-divider">
+                                    <div class="card-divider-dot"></div>
+                                </div>
+                                <div class="card-highlight">从0到<span>380万</span></div>
+                                <div class="highlight-dots">
+                                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                                </div>
+                                <div class="card-content-text">复利的力量</div>
+                                <div class="card-footer">
+                                    <div class="card-footer-text">FINANCIAL GUIDE · 2025</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 内容页1 -->
+                    <div class="carousel-slide">
+                        <div class="note-card">
+                            <div class="card-decoration circle-main"></div>
+                            <div class="card-content">
+                                <div class="card-number">CHAPTER · 02</div>
+                                <div class="card-title">宝子们的理财困境</div>
+                                <div class="card-divider">
+                                    <div class="card-divider-dot"></div>
+                                </div>
+                                <div class="card-accent-box">
+                                    <div style="font-size: 13px; color: #555; line-height: 1.8;">
+                                        刚毕业那会儿我也迷茫过<br>
+                                        月薪几千块，房租水电吃饭交通<br>
+                                        一个月下来几乎存不下钱
+                                    </div>
+                                </div>
+                                <div class="dynamic-shape wave-line" style="margin: 16px 0;"></div>
+                                <div class="card-content-text" style="margin-top: 12px;">
+                                    看着银行卡里的余额<br>
+                                    总觉得理财是有钱人的专利<br>
+                                    <br>
+                                    <strong style="color: #ff6b6b;">错！这是个巨大的误区！</strong>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-footer-text">02 / 07</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 内容页2 -->
+                    <div class="carousel-slide">
+                        <div class="note-card">
+                            <div class="card-decoration circle-dots">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(0,0,0,0.03)" stroke-width="1"/>
+                                    <circle cx="60" cy="60" r="35" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="1"/>
+                                    <circle cx="60" cy="60" r="20" fill="none" stroke="rgba(0,0,0,0.05)" stroke-width="1"/>
+                                </svg>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-number">CHAPTER · 03</div>
+                                <div class="card-title">为什么要理财？</div>
+                                <div class="card-divider">
+                                    <div class="card-divider-dot"></div>
+                                </div>
+                                <div class="card-highlight"><span>通胀</span>正在偷走你的钱</div>
+                                <div class="data-box">
+                                    <div class="data-row">
+                                        <span class="data-label">现在拥有</span>
+                                        <span class="data-value">¥10,000</span>
+                                    </div>
+                                    <div class="data-row">
+                                        <span class="data-label">按3%通胀率</span>
+                                        <span class="data-value">10年后</span>
+                                    </div>
+                                    <div class="data-row">
+                                        <span class="data-label">实际购买力</span>
+                                        <span class="data-value" style="color: #ff6b6b;">¥7,400</span>
+                                    </div>
+                                </div>
+                                <div class="card-content-text" style="margin-top: 16px;">
+                                    钱放银行 = <strong>在亏钱</strong><br>
+                                    理财 = <strong>让钱为你工作</strong>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-footer-text">03 / 07</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 内容页3 -->
+                    <div class="carousel-slide">
+                        <div class="note-card">
+                            <div class="dynamic-shape dot-grid" style="position: absolute; top: 60px; right: 40px; opacity: 0.2;">
+                                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-number">CHAPTER · 04</div>
+                                <div class="card-title">为什么选择ETF定投？</div>
+                                <div class="card-divider">
+                                    <div class="card-divider-dot"></div>
+                                </div>
+                                <div class="card-list">
+                                    <div class="card-list-item"><strong>门槛低</strong> · 几百块就能开始</div>
+                                    <div class="card-list-item"><strong>风险分散</strong> · 包含几十上百只股票</div>
+                                    <div class="card-list-item"><strong>操作简单</strong> · 不需要专业选股能力</div>
+                                    <div class="card-list-item"><strong>长期收益</strong> · 年化8-12%</div>
+                                </div>
+                                <div class="dynamic-shape wave-line" style="margin: 12px 0;"></div>
+                                <div class="card-content-text" style="font-size: 12px; color: #999;">
+                                    ⚠️ 避免追涨杀跌、全仓一只、听消息炒股
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-footer-text">04 / 07</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 内容页4 -->
+                    <div class="carousel-slide">
+                        <div class="note-card">
+                            <div class="card-decoration circle-main"></div>
+                            <div class="card-content">
+                                <div class="card-number">CHAPTER · 05</div>
+                                <div class="card-title">3步开启定投之旅</div>
+                                <div class="card-divider">
+                                    <div class="card-divider-dot"></div>
+                                </div>
+                                <div class="card-list">
+                                    <div class="card-list-item">
+                                        <span style="flex: 1;"><strong>Step 1</strong><br>选择合适指数</span>
+                                        <span style="font-size: 11px; color: #999;">沪深300<br>中证500</span>
+                                    </div>
+                                    <div class="card-list-item">
+                                        <span style="flex: 1;"><strong>Step 2</strong><br>设置定投计划</span>
+                                        <span style="font-size: 11px; color: #999;">每月收入<br>10-20%</span>
+                                    </div>
+                                    <div class="card-list-item">
+                                        <span style="flex: 1;"><strong>Step 3</strong><br>选择靠谱券商</span>
+                                        <span style="font-size: 11px; color: #999;">推荐<br>申万宏源</span>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-footer-text">05 / 07</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 内容页5 -->
+                    <div class="carousel-slide">
+                        <div class="note-card">
+                            <div class="card-decoration circle-dots" style="top: auto; bottom: 80px; right: 40px;">
+                                <svg width="100" height="100" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255, 107, 107, 0.08)" stroke-width="1" stroke-dasharray="4 2"/>
+                                </svg>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-number">CHAPTER · 06</div>
+                                <div class="card-title">长期主义的力量</div>
+                                <div class="card-divider">
+                                    <div class="card-divider-dot"></div>
+                                </div>
+                                <div class="card-accent-box">
+                                    <div style="font-size: 13px; color: #666; margin-bottom: 12px;">22岁，每月定投1000块</div>
+                                    <div class="data-row" style="padding: 8px 0;">
+                                        <span style="font-size: 12px; color: #999;">30岁</span>
+                                        <span style="font-size: 16px; font-weight: 600;">¥15万</span>
+                                    </div>
+                                    <div class="data-row" style="padding: 8px 0;">
+                                        <span style="font-size: 12px; color: #999;">40岁</span>
+                                        <span style="font-size: 16px; font-weight: 600;">¥50万</span>
+                                    </div>
+                                    <div class="data-row" style="padding: 8px 0; border-bottom: none;">
+                                        <span style="font-size: 12px; color: #999;">60岁</span>
+                                        <span style="font-size: 20px; font-weight: 700; color: #ff6b6b;">¥380万</span>
+                                    </div>
+                                </div>
+                                <div class="highlight-dots" style="justify-content: center; margin-top: 12px;">
+                                    <div class="dot" style="background: #ffc107;"></div>
+                                    <div class="dot" style="background: #ffc107;"></div>
+                                    <div class="dot" style="background: #ffc107;"></div>
+                                </div>
+                                <div class="card-content-text" style="margin-top: 12px; text-align: center; font-weight: 600;">
+                                    时间和复利的力量
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-footer-text">06 / 07</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 尾页推广 -->
+                    <div class="carousel-slide">
+                        <div class="note-card card-promo">
+                            <div class="card-decoration circle-main"></div>
+                            <div class="dynamic-shape dot-grid" style="position: absolute; bottom: 60px; right: 30px; opacity: 0.2;">
+                                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-number">PROMO · 07</div>
+                                <div class="card-title">炒股理财想省心？</div>
+                                <div class="card-subtitle">选申万宏源准没错</div>
+                                <div class="card-divider">
+                                    <div class="card-divider-dot"></div>
+                                </div>
+                                <div class="card-list">
+                                    <div class="card-list-item">8.18%新客专属理财</div>
+                                    <div class="card-list-item">A股Level-2免费体验3个月</div>
+                                    <div class="card-list-item">3000元投顾服务代金券</div>
+                                </div>
+                                <div class="dynamic-shape wave-line" style="margin: 12px 0;"></div>
+                                <div class="card-accent-box" style="margin-top: 12px;">
+                                    <div style="font-size: 13px; color: #555;">
+                                        <strong>📚 免费资料包（私信领取）</strong><br>
+                                        <span style="font-size: 12px; color: #999;">ETF新手入门大全 · 定投实操指南</span>
+                                    </div>
+                                </div>
+                                <div class="highlight-dots" style="margin-top: 12px;">
+                                    <div class="dot" style="background: #ffc107;"></div>
+                                    <div class="dot" style="background: #ffc107;"></div>
+                                    <div class="dot" style="background: #ffc107;"></div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="card-tag">SHENWAN HONGYUAN</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dots-indicator" id="dotsIndicator">
+                    <!-- 由JS生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 第三部分：正文区域 -->
+        <div class="content-section">
+            <div class="section-label">CONTENT · 正文内容</div>
+            <div class="note-content">宝子们！刚毕业那会儿我也迷茫过😭
+
+刚毕业那会儿我也迷茫过，月薪几千块，房租水电吃饭交通，一个月下来几乎存不下钱。看着银行卡里的余额，总觉得理财是有钱人的专利，跟我这样的"月光族"没关系。
+
+但这其实是个巨大的误区！为什么要理财？因为通胀正在悄悄偷走你的钱。假设你现在有1万块，按3%通胀率计算，10年后实际购买力只有7400多块。把钱放银行睡大觉，其实是在亏钱！
+
+对于职场新人来说，ETF定投是最适合的理财方式。门槛低（几百块就能开始）、风险分散（一个ETF包含几十上百只股票）、操作简单（不需要专业选股能力）、长期收益（年化8-12%）。
+
+3步开启定投之旅：Step 1选择合适的指数（建议从沪深300、中证500等宽基指数开始）；Step 2设置定投计划（每月定投收入的10-20%，关键是坚持）；Step 3选择靠谱券商（强烈推荐申万宏源证券，成立30年的老牌券商，有专业投顾团队）。
+
+长期主义的力量太惊人了！假设你现在22岁，每个月定投1000块，按年化8%计算，到30岁时你能有15万，到40岁时你能50万，到60岁时能有380万。这就是时间和复利的力量，投资越早开始，效果越好。
+
+炒股理财想省心？选申万宏源准没错！全业务牌照、全国网点、线上开户高效。2026年新客专属福利：8.18%新客专属理财（5万元起投，30天）、A股Level-2免费体验3个月、3000元投顾服务代金券、多款增值指标免费体验。</div>
+
+            <div class="risk-warning">⚠️ <strong>风险提示</strong>：投资有风险,入市需谨慎。以上内容仅供参考,不构成投资建议或收益承诺。关于相关权益,请以购买页面所展示的信息为准。如需了解更多详细规则,欢迎添加企业微信进行咨询。</div>
+
+            <div class="tags">
+                <span class="tag">#理财小白</span>
+                <span class="tag">#投资入门</span>
+                <span class="tag">#ETF</span>
+                <span class="tag">#定投</span>
+                <span class="tag">#申万宏源证券</span>
+                <span class="tag">#职场新人</span>
+                <span class="tag">#理财攻略</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 轮播功能
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const totalPages = slides.length;
+        const dotsContainer = document.getElementById('dotsIndicator');
+
+        function initDots() {
+            for (let i = 0; i < totalPages; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot' + (i === 0 ? ' active' : '');
+                dot.onclick = () => goToSlide(i);
+                dotsContainer.appendChild(dot);
+            }
+            document.getElementById('totalPages').textContent = totalPages;
+        }
+
+        function goToSlide(index) {
+            if (index < 0) index = totalPages - 1;
+            if (index >= totalPages) index = 0;
+            currentSlide = index;
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentSlide);
+            });
+            document.getElementById('currentPage').textContent = currentSlide + 1;
+            const dots = dotsContainer.querySelectorAll('.dot');
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function changeSlide(direction) {
+            goToSlide(currentSlide + direction);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+
+        const titleItems = document.querySelectorAll('.title-item');
+        titleItems.forEach(item => {
+            item.addEventListener('click', () => {
+                titleItems.forEach(t => t.classList.remove('selected'));
+                item.classList.add('selected');
+            });
+        });
+
+        initDots();
+    </script>
+</body>
+</html>

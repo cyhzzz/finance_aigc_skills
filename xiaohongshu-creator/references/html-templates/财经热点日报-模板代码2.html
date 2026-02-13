@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财经热点日报-x月x日</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto+Condensed:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --comic-red: #0124a0;
+            --comic-yellow: #ffd166;
+            --comic-orange: #ff9e7d;
+            --dark: #0f172a;
+        }
+        body { 
+            background-color: var(--dark); 
+            color: white; 
+            font-family: 'Segoe UI', sans-serif; 
+        }
+        /* 卡片样式 */
+        .comic-card {
+            background: white;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.15);
+            border: 5px solid var(--comic-red);
+            transition: transform 0.3s ease;
+        }
+        .comic-card:hover {
+            transform: translateY(-5px) rotate(-1deg);
+        }
+        .comic-card-header {
+            position: relative;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--comic-red);
+        } 
+        .comic-card-number {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-family: 'Bangers', cursive;
+            font-size: 3rem;
+            color: rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+        .comic-card-title {
+            font-family: 'Bangers', cursive;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 2;
+            margin-top: 5px;
+            color: var(--comic-red);
+        }
+        .comic-card-section {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(230, 57, 70, 0.1);
+            color: var(--comic-red);
+            border: 2px solid var(--comic-red);
+        }
+        .comic-card-section i {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+        .comic-highlight {
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 3px;
+            border-bottom: 2px solid var(--comic-red);
+            background: rgba(230, 57, 70, 0.1);
+            color: var(--comic-red);
+        }
+        .comic-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            font-family: 'Bangers', cursive;
+            font-size: 0.8rem;
+            color: white;
+            background-color: var(--comic-red);
+            border-radius: 4px;
+            transform: rotate(-2deg);
+        }
+        /* 预览卡片 */
+        .xhs-preview-container {
+            position: relative;
+            z-index: 10;
+        }
+        .xhs-preview-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 12px;
+            background-color: var(--comic-yellow);
+            color: #333;
+            font-family: 'Bangers', cursive;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transform: rotate(-1deg);
+            transition: all 0.3s ease;
+            border: 2px solid #333;
+        }
+        .xhs-preview-btn:hover {
+            transform: rotate(1deg) scale(1.05);
+            background-color: var(--comic-orange);
+        }
+        .xhs-preview-card {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            margin-bottom: 10px;
+            width: 320px;
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            border: 4px solid var(--comic-red);
+            transform: rotate(1deg);
+        }
+        .xhs-preview-container:hover .xhs-preview-card {
+            display: block;
+            animation: pop-up 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes pop-up {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 0; }
+            100% { transform: translateY(0) rotate(1deg); opacity: 1; }
+        }
+        .xhs-preview-title {
+            font-family: 'Bangers', cursive;
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 10px;
+            border-bottom: 2px dashed var(--comic-red);
+            padding-bottom: 8px;
+        }
+        .xhs-preview-content {
+            font-size: 0.9rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .xhs-preview-tags {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .xhs-preview-tag {
+            background-color: #fcd34d;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .risk-note {
+            margin-top: 10px;
+            padding-top: 8px;
+            font-size: 0.75rem;
+            color: #666;
+            border-top: 1px dashed #ccc;
+            text-align: center;
+        }
+        .xhs-preview-source {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #666;
+            border-top: 1px dashed #ddd;
+            padding-top: 8px;
+        }
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .comic-card-title {
+                font-size: 1.5rem;
+            }
+            .xhs-preview-card {
+                width: 280px;
+                left: 50%;
+                transform: translateX(-50%) rotate(1deg);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold mb-8 text-white">财经热点日报-x月x日</h1>
+        <section id="news" class="container mx-auto px-4 py-12 max-w-7xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 资讯模板 -->
+                <div class="comic-card w-full max-w-sm mx-auto" style="min-height: 500px;">
+                    <div class="h-48 overflow-hidden">
+                        <img src="" alt="财经资讯图片" class="w-full h-full object-cover transition-transform hover:scale-105 duration-500 min-h-[180px]">
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="comic-card-header">
+                            <div class="comic-card-number">01</div>
+                            <span class="comic-tag">财经</span>
+                            <h3 class="comic-card-title">标题</h3>
+                        </div>
+                        <p class="text-gray-700">摘要内容，简要描述资讯内容。</p>
+                        <div class="comic-card-section">
+                            <i class="fas fa-lightbulb"></i> 选题分析
+                        </div>
+                        <p class="text-gray-700">对资讯的选题进行分析，说明其重要性和价值。<span class="comic-highlight">为何投资者要了解</span>。</p>
+                        <div class="xhs-preview-container">
+                            <div class="xhs-preview-btn">成稿预览 <i class="fas fa-eye ml-1"></i></div>
+                            <div class="xhs-preview-card">
+                                <div class="xhs-preview-title">小红书标题</div>
+                                <div class="xhs-preview-content">
+                                    <p>👉 笔记要点1</p>
+                                    <p>👉 笔记要点2</p>
+                                    <p>👉 笔记要点3</p>
+                                </div>
+                                <div class="xhs-preview-tags">
+                                    <span class="xhs-preview-tag">#标签1</span>
+                                    <span class="xhs-preview-tag">#标签2</span>
+                                    <span class="xhs-preview-tag">#标签3</span>
+                                </div>
+                                <div class="risk-note">投资有风险，入市需谨慎。</div>
+                                <div class="xhs-preview-source">参考信源：资讯来源</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 可根据需要复制更多卡片模板 -->
+            </div>
+        </section>
+    </div>
+</body>
+</html>
