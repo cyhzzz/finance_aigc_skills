@@ -16,13 +16,44 @@ import pytz
 class TopicAnalyzer:
     """选题分析器"""
     
-    # 财经相关关键词
+    # 排除关键词（太专业的证券行业术语）
+    EXCLUDE_KEYWORDS = [
+        "证券", "证监会", "券商", "IPO", "上市公司", "退市",
+        "A股", "港股", "美股", "沪深", "创业板", "科创板",
+        "游资", "北向资金", "做市", "定增", "配股",
+        "市盈率", "市净率", "K线", "技术面",
+    ]
+    
+    # 财经相关关键词（扩展到大众关注的话题）
     FINANCE_KEYWORDS = [
+        # 专业财经（低权重）
         "股票", "基金", "投资", "理财", "金融", "银行", "证券",
-        "A股", "港股", "美股", "基金", "理财", "保险",
-        "IPO", "上市", "并购", "融资", "估值",
-        "利率", "汇率", "通胀", "GDP", "央行",
-        "新能源", "芯片", "AI", "科技", "创新",
+        "A股", "港股", "美股", "保险",
+        
+        # 大众财经（高权重）
+        "房价", "楼市", "房贷", "利率",
+        "通胀", "物价", "涨价", "消费",
+        "就业", "工资", "收入", "存款",
+        "养老金", "退休", "社保", "医保",
+        "税收", "补贴", "政策", "改革",
+        
+        # 科技创新（高关注度）
+        "AI", "人工智能", "芯片", "新能源",
+        "电动车", "科技", "创新", "互联网",
+        
+        # 社会民生（高传播性）
+        "教育", "医疗", "养老", "生育",
+        "结婚", "离婚", "房产", "汽车",
+        "旅游", "消费", "购物", "网购",
+        
+        # 国际影响
+        "中美", "贸易", "汇率", "美元",
+    ]
+    
+    # 大众财经关键词（用于提升相关性评分）
+    MASS_FINANCE_KEYWORDS = [
+        "房价", "利率", "通胀", "物价", "就业", "工资",
+        "养老金", "教育", "医疗", "消费", "AI", "新能源"
     ]
     
     # 评分权重
@@ -83,24 +114,43 @@ class TopicAnalyzer:
         计算相关性分（0-100）
         
         考虑因素：
+        - 排除太专业的证券行业术语
         - 是否包含财经关键词
+        - 是否包含大众财经关键词（加分）
         - 关键词数量
         """
         title = topic.get("title", "").lower()
         
+        # 检查是否包含排除关键词
+        exclude_matched = [kw for kw in self.EXCLUDE_KEYWORDS if kw.lower() in title]
+        if len(exclude_matched) >= 2:  # 包含2个以上专业术语，大幅降分
+            return 25
+        
         # 计算匹配的关键词数量
         matched_keywords = [kw for kw in self.FINANCE_KEYWORDS if kw.lower() in title]
-        match_count = len(matched_keywords)
+        mass_matched = [kw for kw in self.MASS_FINANCE_KEYWORDS if kw.lower() in title]
         
-        # 基础分
+        match_count = len(matched_keywords)
+        mass_match_count = len(mass_matched)
+        
+        # 基础分（普通财经关键词）
         if match_count == 0:
             base_score = 30
         elif match_count == 1:
-            base_score = 60
+            base_score = 50
         elif match_count == 2:
-            base_score = 80
+            base_score = 70
         else:
-            base_score = 100
+            base_score = 85
+        
+        # 大众财经关键词加成
+        if mass_match_count > 0:
+            mass_bonus = min(mass_match_count * 10, 15)  # 最多加15分
+            base_score = min(base_score + mass_bonus, 100)
+        
+        # 包含1个专业术语，明显降分
+        if len(exclude_matched) == 1:
+            base_score = max(base_score - 20, 30)
         
         return base_score
     

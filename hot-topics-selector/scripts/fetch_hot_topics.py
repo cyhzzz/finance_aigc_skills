@@ -35,8 +35,14 @@ class HotTopicsFetcher:
         "zhihu": "知乎",
     }
     
-    # 财经相关平台
+    # 财经相关平台（专业）
     FINANCE_PLATFORMS = ["cls-hot", "_36kr", "gelonghui"]
+    
+    # 综合资讯平台（大众关注度高）
+    GENERAL_PLATFORMS = ["toutiao", "baidu", "weibo", "douyin", "zhihu"]
+    
+    # 默认推荐平台（平衡专业和大众）
+    RECOMMENDED_PLATFORMS = ["weibo", "baidu", "toutiao", "cls-hot", "douyin"]
     
     def __init__(self, proxy_url: Optional[str] = None):
         self.proxy_url = proxy_url
@@ -289,7 +295,8 @@ def main():
     elif args.finance:
         platforms = HotTopicsFetcher.FINANCE_PLATFORMS
     else:
-        platforms = list(HotTopicsFetcher.PLATFORMS.keys())
+        # 默认使用推荐平台（平衡专业和大众）
+        platforms = HotTopicsFetcher.RECOMMENDED_PLATFORMS
     
     # 抓取数据
     data = fetcher.fetch_all_platforms(platforms)
