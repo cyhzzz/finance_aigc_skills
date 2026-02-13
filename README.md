@@ -20,11 +20,6 @@
 - pandas >= 1.3.0
 - akshare >= 1.18.0
 
-**安装**：
-```bash
-/plugin install abundance-every-year@claude-code-skills
-```
-
 ---
 
 ### 2. xiaohongshu-creation-workflow
@@ -43,40 +38,30 @@
 - baoyu-xhs-images（小红书图文生成器）
 - content-creation-framework（内容创作框架）
 
-**安装**：
-```bash
-/plugin install xiaohongshu-creator@claude-code-skills
-```
-
 ---
 
 ## 🚀 快速开始
 
-### 方式 1：Claude Code 原生 Marketplace（推荐）
+### 安装所有技能
 
 ```bash
-# 添加 Marketplace
-/plugin marketplace add cyhzzz/finance_aigc_skills
-
-# 安装所有技能
-/plugin install all-skills@claude-code-skills
-
-# 或安装单个技能
-/plugin install abundance-every-year@claude-code-skills
-/plugin install xiaohongshu-creator@claude-code-skills
+npx skills add cyhzzz/finance_aigc_skills
 ```
 
-### 方式 2：通用安装器（多平台支持）
+### 安装单个技能
 
 ```bash
-# 安装所有技能
-npx ai-agent-skills install cyhzzz/finance_aigc_skills
+# 金融投顾工具
+npx skills add cyhzzz/finance_aigc_skills/abundance-every-year
 
-# 仅安装到 Claude Code
-npx ai-agent-skills install cyhzzz/finance_aigc_skills --agent claude
+# 小红书创作工具
+npx skills add cyhzzz/finance_aigc_skills/xiaohongshu-creator
+```
 
-# 安装单个技能
-npx ai-agent-skills install cyhzzz/finance_aigc_skills/xiaohongshu-creator
+### 更新技能
+
+```bash
+npx skills update cyhzzz/finance_aigc_skills
 ```
 
 ---
@@ -94,39 +79,6 @@ npx ai-agent-skills install cyhzzz/finance_aigc_skills/xiaohongshu-creator
 ```
 请使用 xiaohongshu-creator 为以下话题创作小红书笔记：
 "如何选择合适的指数基金进行定投"
-```
-
----
-
-## 🔄 更新技能
-
-```bash
-# Claude Code 原生方式
-/plugin update
-
-# 通用安装器方式
-npx ai-agent-skills update cyhzzz/finance_aigc_skills
-```
-
----
-
-## 🛠️ 开发
-
-### 添加新技能
-
-1. 在仓库中创建技能目录
-2. 添加 `SKILL.md`（必需的 YAML frontmatter）
-3. 更新 `MARKETPLACE.md`
-4. 创建新的 git tag
-
-### 本地测试
-
-```bash
-# 克隆仓库
-git clone https://github.com/cyhzzz/finance_aigc_skills.git
-
-# 复制到 skills 目录
-cp -r finance_aigc_skills/xiaohongshu-creator ~/.claude/skills/
 ```
 
 ---
