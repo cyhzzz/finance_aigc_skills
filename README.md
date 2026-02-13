@@ -4,7 +4,31 @@
 
 ## 📦 包含技能
 
-### 1. abundance-every-year-market-notes
+### 1. hot-topics-selector
+**财经热点选题工具**
+
+从财经热点中智能筛选适合引导投资理财的优质选题。
+
+**功能**：
+- 实时抓取5个平台热点（133个标题）
+- 智能筛选5个可关联投资的选题
+- 抓取新闻详细内容
+- 生成完整选题方案（概要、理由、引导策略）
+
+**特点**：
+- 聚焦投资关联性（证券开户/基金投资）
+- Python 数据抓取 + Agent 智能筛选
+- 固定输出5个高质量选题
+- 每个选题都有明确的引导策略
+
+**依赖**：
+- Python 3.7+
+- requests >= 2.22.0
+- pytz >= 2021.1
+
+---
+
+### 2. abundance-every-year-market-notes
 **年年有鱼投顾评论撰写技能**
 
 基于真实交易数据生成 A 股收评文章。
@@ -22,7 +46,7 @@
 
 ---
 
-### 2. xiaohongshu-creation-workflow
+### 3. xiaohongshu-creation-workflow
 **小红书图文笔记创作工作流**
 
 专为财经证券领域设计的小红书笔记创作工具，支持"一切主题转向投资"的软性营销引流。
@@ -68,11 +92,27 @@ npx skills update cyhzzz/finance_aigc_skills
 
 ## 📖 使用指南
 
+### hot-topics-selector 使用示例
+
+```
+请使用 hot-topics-selector 技能筛选适合引导开户的财经热点选题
+```
+
+**工作流**：
+1. 抓取133个新闻标题
+2. 筛选出5个可关联投资的选题
+3. 抓取5篇新闻详细内容
+4. 生成5个完整选题方案
+
+---
+
 ### abundance-every-year 使用示例
 
 ```
 请使用 abundance-every-year 技能生成今天的 A 股收评
 ```
+
+---
 
 ### xiaohongshu-creator 使用示例
 
@@ -84,6 +124,12 @@ npx skills update cyhzzz/finance_aigc_skills
 ---
 
 ## 📋 版本历史
+
+- **v1.1.0** (2026-02-13)
+  - 新增 hot-topics-selector 财经热点选题工具
+  - 重构为 Python 数据 + Agent 智能的混合架构
+  - 提示词迁移到 Markdown，更易维护
+  - 新增内容抓取功能
 
 - **v1.0.0** (2025-02-13)
   - 初始发布
