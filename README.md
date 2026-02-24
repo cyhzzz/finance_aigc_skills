@@ -4,7 +4,31 @@
 
 ## 📦 包含技能
 
-### 1. hot-topics-selector
+### 1. capital-market-topic-scout
+**资本市场热点选题挖掘工具**
+
+从资本市场热点中挖掘抖音/公众号/小红书爆款选题。
+
+**功能**：
+- 集成 NewsNow API 抓取实时财经热点
+- 基于直男财经、半佛仙人等实战案例的黄金案例分析
+- 二维评分体系（行业关注度 + 社会热度）
+- 平台特定公式（抖音、小红书、公众号）
+- 105个财经关键词自动过滤
+
+**特点**：
+- 聚焦投资关联性和传播潜力
+- 基于"从实践中学习"的方法论
+- 输出可执行的话题方案
+
+**依赖**：
+- Python 3.7+
+- requests >= 2.22.0
+- NewsNow API
+
+---
+
+### 2. hot-topics-selector
 **财经热点选题工具**
 
 从财经热点中智能筛选适合引导投资理财的优质选题。
@@ -28,7 +52,7 @@
 
 ---
 
-### 2. abundance-every-year-market-notes
+### 3. abundance-every-year-market-notes
 **年年有鱼投顾评论撰写技能**
 
 基于真实交易数据生成 A 股收评文章。
@@ -46,7 +70,7 @@
 
 ---
 
-### 3. xiaohongshu-creation-workflow
+### 4. xiaohongshu-creation-workflow
 **小红书图文笔记创作工作流**
 
 专为财经证券领域设计的小红书笔记创作工具，支持"一切主题转向投资"的软性营销引流。
@@ -92,6 +116,19 @@ npx skills update cyhzzz/finance_aigc_skills
 
 ## 📖 使用指南
 
+### capital-market-topic-scout 使用示例
+
+```
+请使用 capital-market-topic-scout 技能挖掘适合短视频创作的资本市场热点选题
+```
+
+**工作流**：
+1. 抓取 NewsNow 财经热点
+2. 二维评分筛选（行业关注度 + 社会热度）
+3. 输出可执行的话题方案
+
+---
+
 ### hot-topics-selector 使用示例
 
 ```
@@ -124,6 +161,11 @@ npx skills update cyhzzz/finance_aigc_skills
 ---
 
 ## 📋 版本历史
+
+- **v1.2.0** (2026-02-24)
+  - 新增 capital-market-topic-scout 资本市场热点选题挖掘工具
+  - 集成 NewsNow API 实时财经热点抓取
+  - 二维评分体系（行业关注度 + 社会热度）
 
 - **v1.1.0** (2026-02-13)
   - 新增 hot-topics-selector 财经热点选题工具
