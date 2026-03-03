@@ -1,550 +1,491 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-获取A股市场数据 - 多数据源支持
-为每个数据类型提供2-3个数据源，按顺序尝试，提高健壮性
-数据源：
-- 上证指数：3个数据源（中证、腾讯、新浪）
-- 深证成指：1个数据源（腾讯）
-- 创业板指：1个数据源（腾讯）
-- 北向资金：1个数据源（东方财富API，仅支持当日数据）
+A股数据获取模块 - 多数据源版本
+支持东方财富、新浪财经、腾讯财经等多个数据源备用
+
+当主数据源失败时，自动切换到备用数据源
 """
 
 import akshare as ak
-import pandas as pd
-from datetime import datetime, date
-import json
-import sys
-import os
 import time
-import requests
+import pandas as pd
+import json
+import os
+from typing import Optional, Dict, List, Any, Callable
+from datetime import datetime, timedelta
+from pathlib import Path
+import warnings
+warnings.filterwarnings('ignore')
 
-# 导入data_cache
-from data_cache import MarketDataCache
 
+class MultiSourceDataFetcher:
+    """多数据源数据获取器"""
 
-def fetch_sh_index_csindex(date_str):
-    """
-    数据源1: 使用 stock_zh_index_hist_csindex 获取上证指数历史数据（中证数据）
-
-    Args:
-        date_str: 日期字符串，格式 'YYYY-MM-DD'
-
-    Returns:
-        dict or None: 指数数据，失败返回None
-    """
-    try:
-        date_num = date_str.replace('-', '')
-        df = ak.stock_zh_index_hist_csindex(symbol='000001', start_date=date_num, end_date=date_num)
-
-        if df.empty:
-            return None
-
-        row = df.iloc[0]
-        return {
-            'close': float(row['收盘']),
-            'open': float(row['开盘']),
-            'high': float(row['最高']),
-            'low': float(row['最低']),
-            'change': float(row['涨跌']),
-            'change_pct': float(row['涨跌幅']),
-            'amount': float(row['成交金额']),
-            'source': 'akshare.csindex'
+    # 数据源配置
+    DATA_SOURCES = {
+        'realtime_quotes': {
+            'name': '实时行情',
+            'sources': [
+                ('东方财富', 'stock_zh_a_spot_em', {}),
+                ('新浪财经', 'stock_zh_a_spot', {}),
+            ]
+        },
+        'industry_board': {
+            'name': '行业板块',
+            'sources': [
+                ('东方财富', 'stock_board_industry_name_em', {}),
+                ('东方财富实时', 'stock_board_industry_spot_em', {}),
+            ]
+        },
+        'concept_board': {
+            'name': '概念板块',
+            'sources': [
+                ('东方财富', 'stock_board_concept_name_em', {}),
+                ('东方财富实时', 'stock_board_concept_spot_em', {}),
+            ]
+        },
+        'north_money': {
+            'name': '北向资金',
+            'sources': [
+                ('资金流向汇总', 'stock_hsgt_fund_flow_summary_em', {}),
+                ('沪深港通历史', 'stock_hsgt_hist_em', {}),
+            ]
+        },
+        'stock_hist': {
+            'name': '个股历史',
+            'sources': [
+                ('东方财富', 'stock_zh_a_hist', {'period': 'daily', 'adjust': ''}),
+                ('腾讯财经', 'stock_zh_a_hist_tx', {}),
+            ]
         }
-    except Exception as e:
-        return None
-
-
-def fetch_sh_index_tx(date_str):
-    """
-    数据源2: 使用 stock_zh_index_daily_tx 获取上证指数历史数据（腾讯数据）
-
-    Args:
-        date_str: 日期字符串，格式 'YYYY-MM-DD'
-
-    Returns:
-        dict or None: 指数数据，失败返回None
-    """
-    try:
-        df = ak.stock_zh_index_daily_tx(symbol='sh000001')
-
-        if df.empty:
-            return None
-
-        year, month, day = map(int, date_str.split('-'))
-        target_date = date(year, month, day)
-
-        target_rows = df[df['date'] == target_date]
-
-        if target_rows.empty:
-            return None
-
-        row = target_rows.iloc[0]
-
-        # 计算涨跌和涨跌幅
-        idx = df.index[df['date'] == target_date].tolist()[0]
-        if idx > 0:
-            prev_row = df.iloc[idx - 1]
-            prev_close = float(prev_row['close'])
-        else:
-            prev_close = float(row['open'])
-
-        change = float(row['close']) - prev_close
-        change_pct = (change / prev_close) * 100 if prev_close > 0 else 0
-
-        return {
-            'close': float(row['close']),
-            'open': float(row['open']),
-            'high': float(row['high']),
-            'low': float(row['low']),
-            'change': change,
-            'change_pct': change_pct,
-            'amount': float(row['amount']) / 100000000,
-            'source': 'akshare.tx'
-        }
-    except Exception as e:
-        return None
-
-
-def fetch_sh_index_sina(date_str):
-    """
-    数据源3: 使用 stock_zh_index_spot_sina 获取上证指数实时数据（新浪数据）
-    注意：这是实时数据，不是历史数据
-
-    Args:
-        date_str: 日期字符串，格式 'YYYY-MM-DD'
-
-    Returns:
-        dict or None: 指数数据，失败返回None
-    """
-    try:
-        df = ak.stock_zh_index_spot_sina()
-
-        if df.empty:
-            return None
-
-        # 查找上证指数
-        sh_row = df[df['代码'] == 'sh000001']
-
-        if sh_row.empty:
-            return None
-
-        row = sh_row.iloc[0]
-        return {
-            'close': float(row['最新价']),
-            'open': float(row['今开']),
-            'high': float(row['最高']),
-            'low': float(row['最低']),
-            'change': float(row['涨跌额']),
-            'change_pct': float(row['涨跌幅']),
-            'amount': float(row['成交额']) / 100000000 if '成交额' in row else 0,
-            'source': 'akshare.sina'
-        }
-    except Exception as e:
-        return None
-
-
-def fetch_sz_index_tx(date_str):
-    """
-    数据源1: 使用 stock_zh_index_daily_tx 获取深证成指历史数据（腾讯数据）
-
-    Args:
-        date_str: 日期字符串，格式 'YYYY-MM-DD'
-
-    Returns:
-        dict or None: 指数数据，失败返回None
-    """
-    try:
-        df = ak.stock_zh_index_daily_tx(symbol='sz399001')
-
-        if df.empty:
-            return None
-
-        year, month, day = map(int, date_str.split('-'))
-        target_date = date(year, month, day)
-
-        target_rows = df[df['date'] == target_date]
-
-        if target_rows.empty:
-            return None
-
-        row = target_rows.iloc[0]
-
-        # 计算涨跌和涨跌幅
-        idx = df.index[df['date'] == target_date].tolist()[0]
-        if idx > 0:
-            prev_row = df.iloc[idx - 1]
-            prev_close = float(prev_row['close'])
-        else:
-            prev_close = float(row['open'])
-
-        change = float(row['close']) - prev_close
-        change_pct = (change / prev_close) * 100 if prev_close > 0 else 0
-
-        return {
-            'close': float(row['close']),
-            'open': float(row['open']),
-            'high': float(row['high']),
-            'low': float(row['low']),
-            'change': change,
-            'change_pct': change_pct,
-            'amount': float(row['amount']) / 100000000,
-            'source': 'akshare.tx'
-        }
-    except Exception as e:
-        return None
-
-
-def fetch_cyb_index_tx(date_str):
-    """
-    数据源1: 使用 stock_zh_index_daily_tx 获取创业板指历史数据（腾讯数据）
-
-    Args:
-        date_str: 日期字符串，格式 'YYYY-MM-DD'
-
-    Returns:
-        dict or None: 指数数据，失败返回None
-    """
-    try:
-        df = ak.stock_zh_index_daily_tx(symbol='sz399006')
-
-        if df.empty:
-            return None
-
-        year, month, day = map(int, date_str.split('-'))
-        target_date = date(year, month, day)
-
-        target_rows = df[df['date'] == target_date]
-
-        if target_rows.empty:
-            return None
-
-        row = target_rows.iloc[0]
-
-        # 计算涨跌和涨跌幅
-        idx = df.index[df['date'] == target_date].tolist()[0]
-        if idx > 0:
-            prev_row = df.iloc[idx - 1]
-            prev_close = float(prev_row['close'])
-        else:
-            prev_close = float(row['open'])
-
-        change = float(row['close']) - prev_close
-        change_pct = (change / prev_close) * 100 if prev_close > 0 else 0
-
-        return {
-            'close': float(row['close']),
-            'open': float(row['open']),
-            'high': float(row['high']),
-            'low': float(row['low']),
-            'change': change,
-            'change_pct': change_pct,
-            'amount': float(row['amount']) / 100000000,
-            'source': 'akshare.tx'
-        }
-    except Exception as e:
-        return None
-
-
-def fetch_north_capital_em(date_str):
-    """
-    数据源1: 使用东方财富API获取北向资金数据（当日数据）
-    重要说明：该API仅支持获取当日数据，无法查询历史日期的北向资金
-
-    Args:
-        date_str: 日期字符串，格式 'YYYY-MM-DD'
-
-    Returns:
-        dict or None: 资金数据，失败返回None
-    """
-    try:
-        # 使用东方财富API获取北向资金数据
-        url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
-        params = {
-            "reportName": "RPT_MUTUAL_QUOTA",
-            "columns": "TRADE_DATE,MUTUAL_TYPE,BOARD_TYPE,MUTUAL_TYPE_NAME,FUNDS_DIRECTION,"
-            "INDEX_CODE,INDEX_NAME,BOARD_CODE",
-            "quoteColumns": "status~07~BOARD_CODE,dayNetAmtIn~07~BOARD_CODE,dayAmtRemain~07~BOARD_CODE,"
-            "dayAmtThreshold~07~BOARD_CODE,f104~07~BOARD_CODE,f105~07~BOARD_CODE,"
-            "f106~07~BOARD_CODE,f3~03~INDEX_CODE~INDEX_f3,netBuyAmt~07~BOARD_CODE",
-            "quoteType": "0",
-            "pageNumber": "1",
-            "pageSize": "5000",
-            "sortTypes": "-1",
-            "sortColumns": "TRADE_DATE",
-            "source": "WEB",
-            "client": "WEB",
-            "filter": "(FUNDS_DIRECTION=\"北向\")",
-        }
-
-        import requests
-        r = requests.get(url, params=params, timeout=10)
-        data_json = r.json()
-
-        if 'result' in data_json and data_json['result'] and 'data' in data_json['result']:
-            df = pd.DataFrame(data_json['result']['data'])
-
-            # 筛选沪股通和深股通
-            sh_row = df[df['MUTUAL_TYPE_NAME'] == '沪股通']
-            sz_row = df[df['MUTUAL_TYPE_NAME'] == '深股通']
-
-            # 计算北向资金总净流入（单位：亿元）
-            sh_inflow = float(sh_row.iloc[0]['netBuyAmt']) / 10000 if not sh_row.empty else 0
-            sz_inflow = float(sz_row.iloc[0]['netBuyAmt']) / 10000 if not sz_row.empty else 0
-
-            total_inflow = sh_inflow + sz_inflow
-
-            return {
-                'net_inflow': total_inflow,
-                'sh_inflow': sh_inflow,
-                'sz_inflow': sz_inflow,
-                'date': date_str,
-                'source': 'eastmoney',
-                'note': '该API仅支持获取当日数据'
-            }
-        else:
-            return None
-    except Exception as e:
-        return None
-
-
-def try_multiple_sources(sources, date_str, source_names):
-    """
-    尝试多个数据源，按顺序尝试，直到成功或全部失败
-
-    Args:
-        sources: 数据源函数列表
-        date_str: 日期字符串
-        source_names: 数据源名称列表
-
-    Returns:
-        tuple: (数据dict, 使用的数据源索引)
-    """
-    last_error = None
-
-    for i, (source_func, source_name) in enumerate(zip(sources, source_names)):
-        try:
-            data = source_func(date_str)
-            if data:
-                return data, i
-            last_error = f"数据源 {source_name} 返回空数据"
-        except Exception as e:
-            last_error = str(e)
-            continue
-
-    return None, -1
-
-
-def fetch_market_data(date_str):
-    """
-    获取指定日期的A股市场数据（多数据源支持）
-
-    Args:
-        date_str: 日期字符串，格式 'YYYY-MM-DD'
-
-    Returns:
-        dict: 市场数据
-    """
-    data = {
-        'date': date_str,
-        'indices': {},
-        'funds': {},
-        'statistics': {},
-        'sectors': {},
-        'error': None
     }
 
-    try:
-        print(f"\n{'='*60}")
-        print(f"获取 {date_str} A股市场数据（多数据源模式）")
-        print(f"{'='*60}")
+    def __init__(self, max_retries: int = 2, cache_dir: str = None, cache_expire: int = 3600):
+        """
+        初始化
 
-        # 1. 获取上证指数（3个数据源）
-        print(f"\n[1/4] 获取上证指数（3个数据源）...")
-        sh_sources = [fetch_sh_index_csindex, fetch_sh_index_tx, fetch_sh_index_sina]
-        sh_source_names = ['中证数据', '腾讯数据', '新浪数据（实时）']
+        Args:
+            max_retries: 最大重试次数
+            cache_dir: 缓存目录
+            cache_expire: 缓存过期时间(秒)
+        """
+        self.max_retries = max_retries
+        self.cache_expire = cache_expire
+        self.success_source = {}  # 记录成功的数据源
 
-        for i, (source_func, source_name) in enumerate(zip(sh_sources, sh_source_names), 1):
-            print(f"  尝试数据源{i} ({source_name})...", end='', flush=True)
+        # 设置缓存目录
+        if cache_dir:
+            self.cache_dir = Path(cache_dir)
+        else:
+            self.cache_dir = Path(__file__).parent / '.cache'
+
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+    def _log(self, msg: str, level: str = 'INFO'):
+        """安全日志输出"""
+        prefix = {
+            'INFO': '[I]',
+            'WARN': '[W]',
+            'ERROR': '[E]',
+            'OK': '[OK]',
+            'FAIL': '[X]'
+        }.get(level, '[?]')
+
+        try:
+            print(f"  {prefix} {msg}")
+        except UnicodeEncodeError:
+            print(f"  {prefix} {msg.encode('gbk', errors='replace').decode('gbk')}")
+
+    def _get_cache_path(self, key: str) -> Path:
+        """获取缓存文件路径"""
+        return self.cache_dir / f"{key}.json"
+
+    def _load_cache(self, key: str) -> Optional[Dict]:
+        """加载缓存"""
+        cache_file = self._get_cache_path(key)
+        if cache_file.exists():
             try:
-                sh_data = source_func(date_str)
-                if sh_data:
-                    data['indices']['sh'] = {
-                        'name': '上证指数',
-                        'code': '000001.SH',
-                        **sh_data
-                    }
-                    sign = '+' if sh_data['change'] >= 0 else ''
-                    print(f" ✅ 成功")
-                    print(f"    收盘: {sh_data['close']:.2f} ({sign}{sh_data['change']:.2f}, {sign}{sh_data['change_pct']:.2f}%)")
-                    print(f"    成交额: {sh_data['amount']:.2f}亿元")
-                    break
-                else:
-                    print(f" ❌ 无数据")
+                with open(cache_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+
+                # 检查是否过期
+                cache_time = datetime.fromisoformat(data.get('cache_time', '2000-01-01'))
+                if datetime.now() - cache_time < timedelta(seconds=self.cache_expire):
+                    return data.get('data')
+            except:
+                pass
+        return None
+
+    def _save_cache(self, key: str, data: Any):
+        """保存缓存"""
+        cache_file = self._get_cache_path(key)
+        try:
+            with open(cache_file, 'w', encoding='utf-8') as f:
+                json.dump({
+                    'cache_time': datetime.now().isoformat(),
+                    'data': data
+                }, f, ensure_ascii=False, indent=2, default=str)
+        except:
+            pass
+
+    def _call_with_retry(self, func: Callable, *args, **kwargs) -> tuple:
+        """带重试的函数调用"""
+        last_error = None
+
+        for attempt in range(self.max_retries):
+            try:
+                result = func(*args, **kwargs)
+                return result, None
             except Exception as e:
-                print(f" ❌ 失败: {str(e)[:60]}")
+                last_error = e
+                if attempt < self.max_retries - 1:
+                    time.sleep(1 + attempt)
+
+        return None, last_error
+
+    def _try_sources(self, data_type: str, **extra_kwargs) -> pd.DataFrame:
+        """
+        尝试多个数据源
+
+        Args:
+            data_type: 数据类型 (对应 DATA_SOURCES 中的键)
+            **extra_kwargs: 额外参数
+
+        Returns:
+            DataFrame 或空 DataFrame
+        """
+        if data_type not in self.DATA_SOURCES:
+            self._log(f"未知数据类型: {data_type}", 'ERROR')
+            return pd.DataFrame()
+
+        config = self.DATA_SOURCES[data_type]
+        self._log(f"获取{config['name']}...")
+
+        # 尝试每个数据源
+        for source_name, func_name, default_kwargs in config['sources']:
+            try:
+                # 合并参数
+                kwargs = {**default_kwargs, **extra_kwargs}
+
+                # 获取函数
+                if not hasattr(ak, func_name):
+                    continue
+
+                func = getattr(ak, func_name)
+                self._log(f"尝试 {source_name}...")
+
+                # 调用函数
+                result, error = self._call_with_retry(func, **kwargs)
+
+                if error:
+                    raise error
+
+                if result is not None and not (isinstance(result, pd.DataFrame) and result.empty):
+                    self._log(f"{source_name} 成功", 'OK')
+                    self.success_source[data_type] = source_name
+
+                    # 如果是DataFrame，转换为可序列化格式
+                    if isinstance(result, pd.DataFrame):
+                        return result
+                    return result
+
+            except Exception as e:
+                self._log(f"{source_name} 失败: {str(e)[:60]}", 'FAIL')
                 continue
 
-        if 'sh' not in data['indices']:
-            print(f"  ❌ 所有数据源均失败")
-            data['error'] = '上证指数所有数据源均失败'
+        self._log(f"所有{config['name']}数据源均失败", 'ERROR')
+        return pd.DataFrame()
 
-        # 2. 获取深证成指（1个数据源）
-        print(f"\n[2/4] 获取深证成指（1个数据源）...")
-        print(f"  尝试数据源1 (腾讯数据)...", end='', flush=True)
-        try:
-            sz_data = fetch_sz_index_tx(date_str)
-            if sz_data:
-                data['indices']['sz'] = {
-                    'name': '深证成指',
-                    'code': '399001.SZ',
-                    **sz_data
-                }
-                sign = '+' if sz_data['change'] >= 0 else ''
-                print(f" ✅ 成功")
-                print(f"    收盘: {sz_data['close']:.2f} ({sign}{sz_data['change']:.2f}, {sign}{sz_data['change_pct']:.2f}%)")
-                print(f"    成交额: {sz_data['amount']:.2f}亿元")
-            else:
-                print(f" ❌ 无数据")
-        except Exception as e:
-            print(f" ❌ 失败: {str(e)[:60]}")
+    # ============ 公共接口 ============
 
-        # 3. 获取创业板指（1个数据源）
-        print(f"\n[3/4] 获取创业板指（1个数据源）...")
-        print(f"  尝试数据源1 (腾讯数据)...", end='', flush=True)
-        try:
-            cyb_data = fetch_cyb_index_tx(date_str)
-            if cyb_data:
-                data['indices']['cyb'] = {
-                    'name': '创业板指',
-                    'code': '399006.SZ',
-                    **cyb_data
-                }
-                sign = '+' if cyb_data['change'] >= 0 else ''
-                print(f" ✅ 成功")
-                print(f"    收盘: {cyb_data['close']:.2f} ({sign}{cyb_data['change']:.2f}, {sign}{cyb_data['change_pct']:.2f}%)")
-                print(f"    成交额: {cyb_data['amount']:.2f}亿元")
-            else:
-                print(f" ❌ 无数据")
-        except Exception as e:
-            print(f" ❌ 失败: {str(e)[:60]}")
+    def get_realtime_quotes(self, symbols: List[str] = None) -> pd.DataFrame:
+        """获取实时行情"""
+        df = self._try_sources('realtime_quotes')
 
-        # 4. 获取北向资金（1个数据源）
-        print(f"\n[4/4] 获取北向资金（东方财富API）...")
-        print(f"  注意：该API仅支持获取当日数据，历史日期可能无有效数据", flush=True)
-        print(f"  尝试数据源 (东方财富API)...", end='', flush=True)
-        try:
-            funds_data = fetch_north_capital_em(date_str)
-            if funds_data:
-                data['funds']['north'] = {
-                    'name': '北向资金',
-                    **funds_data
-                }
-                sign = '+' if funds_data['net_inflow'] >= 0 else ''
-                print(f" ✅ 成功")
-                print(f"    净流入: {sign}{abs(funds_data['net_inflow']):.2f}亿 (沪:{funds_data['sh_inflow']:+.2f}亿, 深:{funds_data['sz_inflow']:+.2f}亿)")
+        if not df.empty and symbols and '代码' in df.columns:
+            return df[df['代码'].isin(symbols)]
 
-                # 检查是否为当日数据
-                today = datetime.now().strftime('%Y-%m-%d')
-                if date_str != today and abs(funds_data['net_inflow']) < 0.01:
-                    print(f"    ⚠️  警告: {date_str}不是当日，返回的数据可能是当日数据或无效数据")
-                    data['funds']['north']['note'] = f'API仅支持获取当日数据，{date_str}的历史数据不可用'
-            else:
-                print(f" ❌ 无数据")
-                data['funds']['north'] = {
-                    'name': '北向资金',
-                    'net_inflow': None,
-                    'sh_inflow': None,
-                    'sz_inflow': None,
-                    'source': 'eastmoney',
-                    'note': 'API仅支持获取当日数据'
-                }
-        except Exception as e:
-            print(f" ❌ 失败: {str(e)[:60]}")
-            data['funds']['north'] = {
-                'name': '北向资金',
-                'net_inflow': None,
-                'sh_inflow': None,
-                'sz_inflow': None,
-                'source': 'eastmoney',
-                'error': str(e)
+        return df
+
+    def get_index_quotes(self) -> Dict[str, Any]:
+        """获取主要指数行情"""
+        df = self.get_realtime_quotes()
+
+        if df.empty:
+            return self._get_default_index_data()
+
+        # 指数代码映射
+        index_map = {
+            '000001': '上证指数',
+            '399001': '深证成指',
+            '399006': '创业板指',
+            '000016': '上证50',
+            '000300': '沪深300',
+            '000688': '科创50'
+        }
+
+        result = {}
+
+        # 提取指数数据
+        if '代码' in df.columns:
+            for code, name in index_map.items():
+                row = df[df['代码'] == code]
+                if not row.empty:
+                    r = row.iloc[0]
+                    result[code] = {
+                        'name': name,
+                        'price': float(r.get('最新价', 0) or 0),
+                        'change_pct': float(r.get('涨跌幅', 0) or 0),
+                        'amount': float(r.get('成交额', 0) or 0)
+                    }
+
+        # 市场统计
+        if '涨跌幅' in df.columns:
+            result['_market'] = {
+                'up_count': int((df['涨跌幅'] > 0).sum()),
+                'down_count': int((df['涨跌幅'] < 0).sum()),
+                'flat_count': int((df['涨跌幅'] == 0).sum()),
+                'total_amount': float(df.get('成交额', pd.Series([0])).sum())
             }
 
-        # 检查是否有核心数据
-        if not data['indices']:
-            data['error'] = '所有指数数据均获取失败'
-        else:
-            data['source'] = 'akshare'
+        result['_source'] = self.success_source.get('realtime_quotes', '未知')
+        return result
 
-        return data
+    def _get_default_index_data(self) -> Dict[str, Any]:
+        """获取默认指数数据（离线）"""
+        return {
+            '000001': {'name': '上证指数', 'price': 0, 'change_pct': 0, 'amount': 0},
+            '399001': {'name': '深证成指', 'price': 0, 'change_pct': 0, 'amount': 0},
+            '399006': {'name': '创业板指', 'price': 0, 'change_pct': 0, 'amount': 0},
+            '_market': {'up_count': 0, 'down_count': 0, 'flat_count': 0, 'total_amount': 0},
+            '_source': '离线数据',
+            '_offline': True
+        }
 
-    except Exception as e:
-        error_msg = str(e)
-        data['error'] = error_msg
-        print(f"\n❌ 数据获取失败: {error_msg[:100]}")
-        return data
+    def get_industry_board(self, top_n: int = 10) -> pd.DataFrame:
+        """获取行业板块"""
+        df = self._try_sources('industry_board')
+
+        if not df.empty and '涨跌幅' in df.columns:
+            return df.nlargest(top_n, '涨跌幅')
+
+        return df.head(top_n) if not df.empty else df
+
+    def get_concept_board(self, top_n: int = 10) -> pd.DataFrame:
+        """获取概念板块"""
+        df = self._try_sources('concept_board')
+
+        if not df.empty and '涨跌幅' in df.columns:
+            return df.nlargest(top_n, '涨跌幅')
+
+        return df.head(top_n) if not df.empty else df
+
+    def get_north_money(self) -> pd.DataFrame:
+        """获取北向资金"""
+        return self._try_sources('north_money')
+
+    def get_stock_hist(self, symbol: str, start_date: str = '', end_date: str = '') -> pd.DataFrame:
+        """获取个股历史行情"""
+        return self._try_sources('stock_hist', symbol=symbol, start_date=start_date, end_date=end_date)
+
+    def get_hot_news(self, max_count: int = 20) -> List[Dict[str, Any]]:
+        """
+        获取热门财经资讯
+
+        Args:
+            max_count: 最大获取条数，默认20条
+
+        Returns:
+            资讯列表，每条包含标题、摘要、来源、时间等
+        """
+        self._log("获取热门财经资讯...")
+        news_list = []
+
+        # 数据源优先级：财联社 > 东方财富 > CCTV
+        news_sources = [
+            ('财联社主线新闻', self._fetch_news_cailian),
+            ('东方财富股票新闻', self._fetch_news_eastmoney),
+            ('CCTV财经新闻', self._fetch_news_cctv),
+        ]
+
+        for source_name, fetch_func in news_sources:
+            try:
+                self._log(f"尝试 {source_name}...")
+                news = fetch_func(max_count - len(news_list))
+                if news:
+                    news_list.extend(news)
+                    self._log(f"{source_name} 获取 {len(news)} 条", 'OK')
+
+                if len(news_list) >= max_count:
+                    break
+            except Exception as e:
+                self._log(f"{source_name} 失败: {str(e)[:50]}", 'FAIL')
+                continue
+
+        # 去重并限制数量
+        seen_titles = set()
+        unique_news = []
+        for item in news_list:
+            title = item.get('title', '')
+            if title and title not in seen_titles:
+                seen_titles.add(title)
+                unique_news.append(item)
+
+        self._log(f"共获取 {len(unique_news[:max_count])} 条热门资讯", 'OK')
+        return unique_news[:max_count]
+
+    def _fetch_news_cailian(self, max_count: int = 20) -> List[Dict[str, Any]]:
+        """从财联社获取主线新闻"""
+        news_list = []
+        try:
+            df = ak.stock_news_main_cx()
+            if df is not None and not df.empty:
+                for _, row in df.head(max_count).iterrows():
+                    news_list.append({
+                        'title': row.get('tag', ''),
+                        'summary': row.get('summary', ''),
+                        'source': '财联社',
+                        'url': row.get('url', ''),
+                        'time': ''
+                    })
+        except Exception as e:
+            self._log(f"财联社获取失败: {str(e)[:50]}", 'FAIL')
+        return news_list
+
+    def _fetch_news_eastmoney(self, max_count: int = 20) -> List[Dict[str, Any]]:
+        """从东方财富获取股票新闻"""
+        news_list = []
+        try:
+            # 获取大盘相关新闻
+            df = ak.stock_news_em(symbol='000001')
+            if df is not None and not df.empty:
+                for _, row in df.head(max_count).iterrows():
+                    news_list.append({
+                        'title': row.get('新闻标题', ''),
+                        'summary': row.get('新闻内容', '')[:200] if row.get('新闻内容') else '',
+                        'source': row.get('文章来源', '东方财富'),
+                        'url': row.get('新闻链接', ''),
+                        'time': row.get('发布时间', '')
+                    })
+        except Exception as e:
+            self._log(f"东方财富获取失败: {str(e)[:50]}", 'FAIL')
+        return news_list
+
+    def _fetch_news_cctv(self, max_count: int = 20) -> List[Dict[str, Any]]:
+        """从CCTV获取财经新闻"""
+        news_list = []
+        try:
+            # 获取今天的日期
+            today = datetime.now().strftime('%Y%m%d')
+            df = ak.news_cctv(date=today)
+            if df is not None and not df.empty:
+                for _, row in df.head(max_count).iterrows():
+                    news_list.append({
+                        'title': row.get('title', ''),
+                        'summary': row.get('content', '')[:200] if row.get('content') else '',
+                        'source': 'CCTV',
+                        'url': '',
+                        'time': row.get('date', '')
+                    })
+        except Exception as e:
+            self._log(f"CCTV获取失败: {str(e)[:50]}", 'FAIL')
+        return news_list
+
+    def get_market_summary(self) -> Dict[str, Any]:
+        """获取市场概览"""
+        self._log("=" * 50)
+        self._log("获取市场概览")
+        self._log("=" * 50)
+
+        result = {
+            'timestamp': datetime.now().isoformat(),
+            'index': self.get_index_quotes(),
+            'industry': {},
+            'concept': {},
+            'north_money': {},
+            'hot_news': []  # 新增热门资讯
+        }
+
+        # 行业板块 TOP5
+        industry_df = self.get_industry_board(top_n=5)
+        if not industry_df.empty and '板块名称' in industry_df.columns:
+            result['industry'] = {
+                row['板块名称']: float(row.get('涨跌幅', 0) or 0)
+                for _, row in industry_df.iterrows()
+            }
+
+        # 概念板块 TOP5
+        concept_df = self.get_concept_board(top_n=5)
+        if not concept_df.empty and '板块名称' in concept_df.columns:
+            result['concept'] = {
+                row['板块名称']: float(row.get('涨跌幅', 0) or 0)
+                for _, row in concept_df.iterrows()
+            }
+
+        # 热门财经资讯
+        result['hot_news'] = self.get_hot_news(max_count=20)
+
+        return result
 
 
-def main():
-    """主函数 - 获取指定日期数据"""
-    if len(sys.argv) > 1:
-        date_str = sys.argv[1]
+def test_multi_source():
+    """测试多数据源获取器"""
+    print("\n" + "=" * 60)
+    print("测试多数据源数据获取器")
+    print("=" * 60 + "\n")
+
+    fetcher = MultiSourceDataFetcher(max_retries=2, cache_expire=300)
+
+    # 1. 测试指数
+    print("\n[1] 获取指数行情")
+    index_data = fetcher.get_index_quotes()
+
+    if not index_data.get('_offline'):
+        print("\n  主要指数:")
+        for code in ['000001', '399001', '399006']:
+            if code in index_data:
+                d = index_data[code]
+                print(f"    {d['name']}: {d['price']:.2f} ({d['change_pct']:+.2f}%)")
+
+        if '_market' in index_data:
+            m = index_data['_market']
+            print(f"\n  市场: 涨 {m['up_count']} / 跌 {m['down_count']} / 平 {m['flat_count']}")
+
+        print(f"\n  数据源: {index_data.get('_source', '未知')}")
     else:
-        # 默认使用今天
-        date_str = datetime.now().strftime('%Y-%m-%d')
+        print("  [离线模式] 无法获取实时数据")
 
-    data = fetch_market_data(date_str)
+    # 2. 测试行业板块
+    print("\n[2] 获取行业板块 TOP5")
+    industry_df = fetcher.get_industry_board(top_n=5)
+    if not industry_df.empty and '板块名称' in industry_df.columns:
+        for _, row in industry_df.iterrows():
+            print(f"    {row['板块名称']}: {row.get('涨跌幅', 0):+.2f}%")
+    else:
+        print("  无法获取行业板块数据")
 
-    # 保存为 JSON
-    output_file = f'/tmp/market_data_{date_str}.json'
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    # 3. 测试北向资金
+    print("\n[3] 获取北向资金")
+    north_df = fetcher.get_north_money()
+    if not north_df.empty:
+        print(f"  成功获取 {len(north_df)} 条记录")
+        print(f"  最新: {north_df.iloc[-1].to_dict() if len(north_df) > 0 else '无数据'}")
+    else:
+        print("  无法获取北向资金数据")
 
-    print(f"\n{'='*60}")
-    print(f"✓ 数据已保存: {output_file}")
+    # 4. 测试热门资讯
+    print("\n[4] 获取热门财经资讯")
+    news_list = fetcher.get_hot_news(max_count=10)
+    if news_list:
+        for i, news in enumerate(news_list, 1):
+            print(f"    [{i}] {news.get('title', '')[:40]}... ({news.get('source', '')})")
+    else:
+        print("  无法获取热门资讯")
 
-    # 检查数据质量
-    if data.get('error') or not data.get('indices'):
-        print(f"\n❌ 数据获取失败: {data.get('error', '未知错误')}")
-        print(f"\n无法生成收评报告")
-        sys.exit(1)
-
-    # 打印关键数据
-    print(f"\n{'='*60}")
-    print(f"市场概况 ({date_str})")
-    print(f"{'='*60}")
-
-    for key, idx in data['indices'].items():
-        if isinstance(idx, dict) and 'name' in idx:
-            sign = '+' if idx['change'] >= 0 else ''
-            print(f"\n{idx['name']:8s}:")
-            print(f"  收盘: {idx['close']:10.2f}")
-            print(f"  涨跌: {sign}{idx['change']:8.2f} ({sign}{idx['change_pct']:6.2f}%)")
-            print(f"  成交额: {idx['amount']:10.2f}亿元")
-            if 'source' in idx:
-                print(f"  数据源: {idx['source']}")
-
-    if 'north' in data['funds'] and isinstance(data['funds']['north'], dict):
-        funds = data['funds']['north']
-        if 'net_inflow' in funds and funds['net_inflow'] is not None:
-            sign = '+' if funds['net_inflow'] >= 0 else ''
-            print(f"\n北向资金: {sign}{funds['net_inflow']:.2f}亿")
-        else:
-            print(f"\n北向资金: 数据不可用（API仅支持获取当日数据）")
-            if 'note' in funds:
-                print(f"  说明: {funds['note']}")
-
-    print(f"\n数据来源: {data.get('source', 'akshare')}")
-    print(f"{'='*60}")
-    print(f"✓ 数据获取成功")
-
-    # 保存到缓存
-    cache = MarketDataCache()
-    cache.save_data(date_str, data)
-    print(f"✓ 数据已保存到缓存")
-
-    return data
+    print("\n" + "=" * 60)
+    print("测试完成")
+    print("=" * 60)
 
 
 if __name__ == '__main__':
-    main()
+    test_multi_source()
