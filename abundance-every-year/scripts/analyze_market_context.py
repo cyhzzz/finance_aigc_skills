@@ -6,6 +6,8 @@
 """
 
 import json
+import os
+import tempfile
 from datetime import datetime, timedelta
 from chinese_calendar import is_workday, is_holiday
 import sys
@@ -288,8 +290,9 @@ def main():
         for rec in context['recommendations']:
             print(f"  • {rec}")
     
-    # 保存为 JSON
-    output_file = f"/tmp/market_context_{date_str}.json"
+    # 保存为 JSON（使用跨平台临时目录）
+    import tempfile
+    output_file = os.path.join(tempfile.gettempdir(), f"market_context_{date_str}.json")
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(context, f, ensure_ascii=False, indent=2)
     
