@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小红书笔记预览 - 杂志信息卡风格</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI",
+                         "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+            background: #e8e8e8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            gap: 32px;
+        }
+
+        /* ── 顶部控制条 ── */
+        .control-bar {
+            width: 100%;
+            max-width: 700px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            flex-wrap: wrap;
+        }
+
+        .control-bar label {
+            font-size: 12px;
+            color: #555;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .width-btn {
+            padding: 6px 16px;
+            border: 1.5px solid #ccc;
+            border-radius: 4px;
+            background: transparent;
+            font-size: 12px;
+            cursor: pointer;
+            color: #333;
+            transition: all 0.2s;
+        }
+
+        .width-btn:hover {
+            border-color: #111;
+        }
+
+        .width-btn.active {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+        }
+
+        /* ── 主预览容器（宽度可切换）── */
+        .preview-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ── 标题候选区（独立于卡片外） ── */
+        .title-selector {
+            width: 600px; /* 默认与卡片同宽，JS动态调整 */
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .title-selector-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 12px;
+        }
+
+        .title-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .title-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.15s;
+            border: 1.5px solid transparent;
+        }
+
+        .title-item:hover {
+            background: #f5f5f5;
+        }
+
+        .title-item.selected {
+            border-color: #111;
+            background: #fafafa;
+        }
+
+        .title-num {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #555;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1px;
+        }
+
+        .title-item.selected .title-num {
+            background: #111;
+            color: #fff;
+        }
+
+        .title-text {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #222;
+        }
+
+        /* ── 卡片组（纵向排列每页） ── */
+        .cards-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            width: 600px; /* JS动态调整 */
+        }
+
+        /* ── 单张信息卡 ── 严格遵循小红书 3:4 比例 */
+        .info-card {
+            width: 100%;
+            aspect-ratio: 3 / 4;          /* ★ 小红书标准比例，硬性约束 */
+            background: #fff;
+            position: relative;
+            overflow: hidden;
+            padding: 0;
+            display: flex;
+            flex-direction: column;        /* topbar + card-body 纵向排列 */
+        }
+
+        /* 卡片顶部色带 */
+        .card-topbar {
+            flex-shrink: 0;               /* 色带固定高度，不被压缩 */
+            height: 6px;
+            background: #111;
+            width: 100%;
+        }
+
+        .card-topbar.accent-red    { background: #D32F2F; }
+        .card-topbar.accent-blue   { background: #1565C0; }
+        .card-topbar.accent-gold   { background: #F9A825; }
+        .card-topbar.accent-green  { background: #2E7D32; }
+        .card-topbar.accent-black  { background: #111111; }
+
+        /* 卡片主体 */
+        .card-body {
+            flex: 1;                      /* 占满 3:4 卡片除色带外全部高度 */
+            min-height: 0;               /* 允许 flex 子项收缩 */
+            display: flex;
+            flex-direction: column;
+            padding: 20px 26px 18px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 卡片页码/类型标注 */
+        .card-meta {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #bbb;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-meta .page-num {
+            font-size: 10px;
+            color: #ccc;
+        }
+
+        /* Hook 标题（10-20字强冲击句式） */
+        .card-hook {
+            font-size: 3.8vw; /* vw自适应 */
+            font-weight: 900;
+            line-height: 1.15;
+            color: #111;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+            /* 限制最小最大字号 */
+            min-font-size: 18px;
+            max-font-size: 36px;
+        }
+
+        /* 针对不同宽度档位的字号 */
+        .width-480 .card-hook  { font-size: clamp(18px, 5.5vw, 26px); }
+        .width-600 .card-hook  { font-size: clamp(20px, 4.2vw, 30px); }
+        .width-900 .card-hook  { font-size: clamp(22px, 3.2vw, 36px); }
+
+        /* 分隔线 */
+        .card-divider {
+            flex-shrink: 0;
+            width: 40px;
+            height: 3px;
+            background: #111;
+            margin-bottom: 12px;
+        }
+
+        .card-divider.accent-red  { background: #D32F2F; }
+        .card-divider.accent-blue { background: #1565C0; }
+        .card-divider.accent-gold { background: #F9A825; }
+
+        /* 副标题 / 章节说明 */
+        .card-subtitle {
+            flex-shrink: 0;
+            font-size: 12px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        /* ★ 通用伸展辅助类：让主内容区撑满 card-body 剩余高度 */
+        /* 在 point-list / data-grid / quote-block / cta-block 上添加此类 */
+        .content-grow {
+            flex: 1 1 0;
+            min-height: 0;
+        }
+
+        /* 要点列表 */
+        .point-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* 要点均匀分布，撑满高度 */
+            gap: 0;                          /* gap 由 space-between 替代 */
+            margin-bottom: 0;
+            flex: 1 1 0;
+            min-height: 0;
+        }
+
+        .point-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            flex: 1;                         /* 每个要点平均分配高度 */
+            max-height: none;
+        }
+
+        .point-marker {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #111;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            color: #111;
+            margin-top: 1px;
+        }
+
+        .point-marker.filled {
+            background: #111;
+            color: #fff;
+        }
+
+        .point-marker.accent-red  { border-color: #D32F2F; color: #D32F2F; }
+        .point-marker.accent-red.filled { background: #D32F2F; color: #fff; }
+        .point-marker.accent-blue { border-color: #1565C0; color: #1565C0; }
+        .point-marker.accent-blue.filled { background: #1565C0; color: #fff; }
+        .point-marker.accent-gold { border-color: #F9A825; color: #b87900; }
+
+        .point-content {
+            flex: 1;
+        }
+
+        .point-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111;
+            line-height: 1.4;
+            margin-bottom: 2px;
+        }
+
+        .point-desc {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 数据展示网格 */
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 0;
+            flex: 1 1 0;         /* ★ 撑满剩余高度 */
+            align-content: stretch; /* 格子纵向撑满 */
+        }
+
+        .data-cell {
+            border: 1.5px solid #eee;
+            border-radius: 4px;
+            padding: 0 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 格子内容垂直居中 */
+        }
+
+        .data-cell-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+
+        .data-cell-value {
+            font-size: 22px;
+            font-weight: 900;
+            color: #111;
+            line-height: 1;
+        }
+
+        .data-cell-value .unit {
+            font-size: 13px;
+            font-weight: 500;
+            color: #777;
+        }
+
+        /* 引用块 */
+        .quote-block {
+            border-left: 4px solid #111;
+            padding: 0 16px;
+            margin-bottom: 0;
+            background: #f9f9f9;
+            flex: 1 1 0;         /* ★ 撑满剩余高度 */
+            display: flex;
+            align-items: center; /* 引用文字垂直居中 */
+        }
+
+        .quote-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        /* 强调框（品牌/CTA） */
+        .cta-block {
+            background: #111;
+            color: #fff;
+            padding: 0 24px;
+            margin-bottom: 0;
+            border-radius: 4px;
+            flex: 1 1 0;         /* ★ 撑满剩余高度 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* CTA 内容垂直居中 */
+        }
+
+        .cta-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.6;
+            margin-bottom: 8px;
+        }
+
+        .cta-title {
+            font-size: 18px;
+            font-weight: 900;
+            line-height: 1.3;
+            margin-bottom: 10px;
+        }
+
+        .cta-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .cta-list li {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.9;
+        }
+
+        .cta-list li::before {
+            content: '→';
+            opacity: 0.6;
+        }
+
+        /* 卡片底部 */
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+            margin-top: auto;
+        }
+
+        .card-footer-brand {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #bbb;
+            text-transform: uppercase;
+        }
+
+        .card-footer-page {
+            font-size: 11px;
+            color: #ccc;
+            font-weight: 500;
+        }
+
+        /* 标签区 */
+        .tag-section {
+            width: 600px; /* JS动态调整 */
+            background: #fff;
+            border-radius: 8px;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .tag-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            font-size: 12px;
+            color: #555;
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 2px;
+            font-weight: 500;
+        }
+
+        /* 正文内容区 */
+        .content-section {
+            width: 600px; /* JS动态调整 */
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .content-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 16px;
+        }
+
+        .note-content {
+            font-size: 14px;
+            line-height: 1.9;
+            color: #333;
+            white-space: pre-wrap;
+        }
+
+        .risk-warning {
+            margin-top: 20px;
+            padding: 12px 16px;
+            background: #fff9e6;
+            border-left: 3px solid #F9A825;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── 宽度切换控制条 ── -->
+<div class="control-bar">
+    <label>卡片宽度</label>
+    <button class="width-btn" data-width="480" onclick="setWidth(480, this)">480px 移动端</button>
+    <button class="width-btn active" data-width="600" onclick="setWidth(600, this)">600px 默认</button>
+    <button class="width-btn" data-width="900" onclick="setWidth(900, this)">900px 桌面</button>
+    <span style="margin-left:auto; font-size:12px; color:#999;">MAGAZINE INFO CARD · 杂志信息卡风格</span>
+</div>
+
+<!-- ── 主预览区 ── -->
+<div class="preview-wrapper" id="previewWrapper">
+
+    <!-- Section 1: 标题候选 -->
+    <div class="title-selector width-600" id="titleSelector">
+        <div class="title-selector-label">TITLE CANDIDATES · 标题候选</div>
+        <ul class="title-list" id="titleList">
+            <!-- 标题1（默认选中） -->
+            <li class="title-item selected" onclick="selectTitle(this)">
+                <span class="title-num">1</span>
+                <span class="title-text">22岁职场新人必看！ETF定投3步走，月薪5000也能实现财富自由</span>
+            </li>
+            <li class="title-item" onclick="selectTitle(this)">
+                <span class="title-num">2</span>
+                <span class="title-text">从0到380万：职场新人的理财真相，你不知道钱在偷偷跑路</span>
+            </li>
+            <li class="title-item" onclick="selectTitle(this)">
+                <span class="title-num">3</span>
+                <span class="title-text">月薪5000如何开始投资？95后亲测有效的ETF定投方案</span>
+            </li>
+            <li class="title-item" onclick="selectTitle(this)">
+                <span class="title-num">4</span>
+                <span class="title-text">年轻人理财的第一步：3个动作让你的钱开始为你工作</span>
+            </li>
+            <li class="title-item" onclick="selectTitle(this)">
+                <span class="title-num">5</span>
+                <span class="title-text">新人打工人避坑指南：不懂这件事，你努力存的钱都白费了</span>
+            </li>
+            <li class="title-item" onclick="selectTitle(this)">
+                <span class="title-num">6</span>
+                <span class="title-text">ETF定投入门手册：职场小白3步开启正确理财路</span>
+            </li>
+            <li class="title-item" onclick="selectTitle(this)">
+                <span class="title-num">7</span>
+                <span class="title-text">别让通胀偷走你的工资！职场新人必知的钱生钱公式</span>
+            </li>
+            <li class="title-item" onclick="selectTitle(this)">
+                <span class="title-num">8</span>
+                <span class="title-text">买ETF还是买股票？一篇文章帮你想清楚</span>
+            </li>
+            <li class="title-item" onclick="selectTitle(this)">
+                <span class="title-num">9</span>
+                <span class="title-text">人生第一笔投资怎么做？职场新人实操版定投指南</span>
+            </li>
+            <li class="title-item" onclick="selectTitle(this)">
+                <span class="title-num">10</span>
+                <span class="title-text">20岁开始定投VS30岁才开始：10年差距让你震惊</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Section 2: 信息卡片组（每页一张，纵向排列） -->
+    <div class="cards-stack width-600" id="cardsStack">
+
+        <!-- 卡片 1：封面卡 ── COVER -->
+        <div class="info-card">
+            <div class="card-topbar accent-black"></div>
+            <div class="card-body">
+                <div class="card-meta">
+                    <span>COVER · 封面</span>
+                    <span class="page-num">01 / 07</span>
+                </div>
+                <div class="card-hook">
+                    22岁职场新人必看——<br>月薪5000，3步开启财富复利
+                </div>
+                <div class="card-divider accent-black"></div>
+                <div class="card-subtitle">
+                    你的工资在增长，但你的钱包好像从来没有变厚过。<br>
+                    这篇笔记告诉你，年轻人理财的第一步应该迈向哪里。
+                </div>
+                <div class="quote-block">
+                    <div class="quote-text">"不是钱少，是方法不对。ETF定投让钱为你工作。"</div>
+                </div>
+                <div class="card-footer">
+                    <span class="card-footer-brand">申万宏源证券</span>
+                    <span class="card-footer-page">FINANCIAL GUIDE · 2025</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 卡片 2：内容页 1 ── 痛点 -->
+        <div class="info-card">
+            <div class="card-topbar accent-red"></div>
+            <div class="card-body">
+                <div class="card-meta">
+                    <span>CHAPTER 01 · 问题</span>
+                    <span class="page-num">02 / 07</span>
+                </div>
+                <div class="card-hook">
+                    你存下的每一块钱<br>正在悄悄缩水
+                </div>
+                <div class="card-divider accent-red"></div>
+                <div class="data-grid">
+                    <div class="data-cell">
+                        <div class="data-cell-label">年通胀率</div>
+                        <div class="data-cell-value">3<span class="unit">%</span></div>
+                    </div>
+                    <div class="data-cell">
+                        <div class="data-cell-label">活期存款利率</div>
+                        <div class="data-cell-value">0.15<span class="unit">%</span></div>
+                    </div>
+                    <div class="data-cell">
+                        <div class="data-cell-label">10年后购买力</div>
+                        <div class="data-cell-value">74<span class="unit">%</span></div>
+                    </div>
+                    <div class="data-cell">
+                        <div class="data-cell-label">实际亏损</div>
+                        <div class="data-cell-value">-26<span class="unit">%</span></div>
+                    </div>
+                </div>
+                <div class="card-subtitle">
+                    把钱放在银行活期，10年后实际购买力缩水26%。<br>
+                    你以为在存钱，实际上钱在被通胀偷走。
+                </div>
+                <div class="card-footer">
+                    <span class="card-footer-brand">申万宏源证券</span>
+                    <span class="card-footer-page">02 / 07</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 卡片 3：内容页 2 ── 为什么选ETF -->
+        <div class="info-card">
+            <div class="card-topbar accent-blue"></div>
+            <div class="card-body">
+                <div class="card-meta">
+                    <span>CHAPTER 02 · 方案</span>
+                    <span class="page-num">03 / 07</span>
+                </div>
+                <div class="card-hook">
+                    为什么是ETF？<br>普通人的最佳入场券
+                </div>
+                <div class="card-divider accent-blue"></div>
+                <ul class="point-list">
+                    <li class="point-item">
+                        <span class="point-marker filled accent-blue">1</span>
+                        <div class="point-content">
+                            <div class="point-title">分散风险，一键买入市场</div>
+                            <div class="point-desc">买1只ETF=买入几十到几百只股票，单股暴雷无法击垮你的资产</div>
+                        </div>
+                    </li>
+                    <li class="point-item">
+                        <span class="point-marker filled accent-blue">2</span>
+                        <div class="point-content">
+                            <div class="point-title">门槛极低，100元起步</div>
+                            <div class="point-desc">无需大额资金，每月固定金额投入即可</div>
+                        </div>
+                    </li>
+                    <li class="point-item">
+                        <span class="point-marker filled accent-blue">3</span>
+                        <div class="point-content">
+                            <div class="point-title">省心省力，无需每天盯盘</div>
+                            <div class="point-desc">设置好定投计划后自动执行，适合上班族和小白</div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="card-footer">
+                    <span class="card-footer-brand">申万宏源证券</span>
+                    <span class="card-footer-page">03 / 07</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 卡片 4：内容页 3 ── 3步开启定投 -->
+        <div class="info-card">
+            <div class="card-topbar accent-black"></div>
+            <div class="card-body">
+                <div class="card-meta">
+                    <span>CHAPTER 03 · 操作</span>
+                    <span class="page-num">04 / 07</span>
+                </div>
+                <div class="card-hook">
+                    3步开启你的第一笔定投
+                </div>
+                <div class="card-divider accent-black"></div>
+                <ul class="point-list">
+                    <li class="point-item">
+                        <span class="point-marker">S1</span>
+                        <div class="point-content">
+                            <div class="point-title">选好标的：宽基ETF优先</div>
+                            <div class="point-desc">推荐沪深300ETF、中证500ETF、创业板ETF，追踪指数稳健</div>
+                        </div>
+                    </li>
+                    <li class="point-item">
+                        <span class="point-marker">S2</span>
+                        <div class="point-content">
+                            <div class="point-title">设好金额：月收入10%起步</div>
+                            <div class="point-desc">月薪5000定投500元，不影响日常生活，细水长流积少成多</div>
+                        </div>
+                    </li>
+                    <li class="point-item">
+                        <span class="point-marker">S3</span>
+                        <div class="point-content">
+                            <div class="point-title">坚持执行：不择时，不恐慌</div>
+                            <div class="point-desc">市场涨跌正常，定投核心是坚持，长期主义才是真正的护城河</div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="card-footer">
+                    <span class="card-footer-brand">申万宏源证券</span>
+                    <span class="card-footer-page">04 / 07</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 卡片 5：内容页 4 ── 复利数据 -->
+        <div class="info-card">
+            <div class="card-topbar accent-gold"></div>
+            <div class="card-body">
+                <div class="card-meta">
+                    <span>CHAPTER 04 · 数据</span>
+                    <span class="page-num">05 / 07</span>
+                </div>
+                <div class="card-hook">
+                    长期主义的力量：<br>时间是普通人最大的武器
+                </div>
+                <div class="card-divider accent-gold"></div>
+                <div class="data-grid">
+                    <div class="data-cell">
+                        <div class="data-cell-label">月定投500元 · 10年</div>
+                        <div class="data-cell-value">9.8<span class="unit">万</span></div>
+                    </div>
+                    <div class="data-cell">
+                        <div class="data-cell-label">月定投500元 · 20年</div>
+                        <div class="data-cell-value">38.2<span class="unit">万</span></div>
+                    </div>
+                    <div class="data-cell">
+                        <div class="data-cell-label">同期纯存款 · 20年</div>
+                        <div class="data-cell-value">12<span class="unit">万</span></div>
+                    </div>
+                    <div class="data-cell">
+                        <div class="data-cell-label">投资收益倍数</div>
+                        <div class="data-cell-value">3.2<span class="unit">x</span></div>
+                    </div>
+                </div>
+                <div class="card-subtitle">
+                    假设年化收益率8%（沪深300历史年化约10%），<br>20年定投的结果是纯存款的3倍以上。
+                </div>
+                <div class="card-footer">
+                    <span class="card-footer-brand">申万宏源证券</span>
+                    <span class="card-footer-page">05 / 07</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 卡片 6：内容页 5 ── 误区提醒 -->
+        <div class="info-card">
+            <div class="card-topbar accent-red"></div>
+            <div class="card-body">
+                <div class="card-meta">
+                    <span>CHAPTER 05 · 避坑</span>
+                    <span class="page-num">06 / 07</span>
+                </div>
+                <div class="card-hook">
+                    3个让你越定投越亏的<br>致命误区
+                </div>
+                <div class="card-divider accent-red"></div>
+                <ul class="point-list">
+                    <li class="point-item">
+                        <span class="point-marker accent-red filled">!</span>
+                        <div class="point-content">
+                            <div class="point-title">误区一：追热点买主题ETF</div>
+                            <div class="point-desc">芯片、新能源等主题ETF波动大，初学者应优先选宽基ETF</div>
+                        </div>
+                    </li>
+                    <li class="point-item">
+                        <span class="point-marker accent-red filled">!</span>
+                        <div class="point-content">
+                            <div class="point-title">误区二：大跌时停止定投</div>
+                            <div class="point-desc">下跌是低价买入的机会，恐慌性停止是最常见的亏损原因</div>
+                        </div>
+                    </li>
+                    <li class="point-item">
+                        <span class="point-marker accent-red filled">!</span>
+                        <div class="point-content">
+                            <div class="point-title">误区三：频繁更换标的</div>
+                            <div class="point-desc">定投要靠时间积累，频繁调仓只会增加成本、打乱复利节奏</div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="card-footer">
+                    <span class="card-footer-brand">申万宏源证券</span>
+                    <span class="card-footer-page">06 / 07</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 卡片 7：推广尾页 ── PROMO -->
+        <div class="info-card">
+            <div class="card-topbar accent-black"></div>
+            <div class="card-body">
+                <div class="card-meta">
+                    <span>EXCLUSIVE · 专属福利</span>
+                    <span class="page-num">07 / 07</span>
+                </div>
+                <div class="card-hook">
+                    开户申万宏源证券<br>专属新客权益等你领
+                </div>
+                <div class="card-divider accent-black"></div>
+                <div class="cta-block">
+                    <div class="cta-label">NEW CLIENT BENEFITS · 新客专属</div>
+                    <div class="cta-title">3大权益，限时开放</div>
+                    <ul class="cta-list">
+                        <li>新客专属理财 8.18% 预期年化收益率</li>
+                        <li>Level-2 高速行情免费用 90 天</li>
+                        <li>专业投顾一对一服务</li>
+                        <li>增值指标工具礼包</li>
+                    </ul>
+                </div>
+                <div class="card-subtitle">
+                    👆 私信「开户」领取专属资料包<br>
+                    💬 扫码/私信 联系专属客服
+                </div>
+                <div class="card-footer">
+                    <span class="card-footer-brand">@申万宏源证券财富管理</span>
+                    <span class="card-footer-page">关注 · 点赞 · 收藏</span>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /cards-stack -->
+
+    <!-- Section 3: 正文内容 -->
+    <div class="content-section width-600" id="contentSection">
+        <div class="content-section-label">CONTENT · 正文内容</div>
+        <div class="note-content">宝子们，你们有没有发现一个很扎心的现象——
+
+工资涨了，钱包却还是那么薄？
+
+不是你花钱多，是你的钱放错地方了。
+
+银行活期利率才0.15%，而通胀悄悄吃掉你3%以上的购买力。把钱存在银行，你以为在安全，其实在慢慢亏损。
+
+【为什么选ETF定投？】
+ETF就是一篮子股票的集合，买一只ETF等于买了几十上百家公司。不需要研究个股，不需要盯盘，定期投入，长期持有，就能分享中国经济增长的红利。
+
+【新手3步上手】
+① 选好标的：沪深300ETF、中证500ETF，追踪大盘稳健
+② 设好金额：月收入10%，细水长流
+③ 坚持执行：不择时，涨跌都投，让时间帮你赚钱
+
+月定投500元，坚持20年，年化8%收益，最终累积约38万，是同期纯存款的3倍！
+
+投资有风险，但不投资，通胀的风险更大。
+
+想了解更多，欢迎私信我，或来申万宏源证券开户，专业投顾为你定制专属理财方案 📈</div>
+        <div class="risk-warning">
+            ⚠️ <strong>风险提示</strong>：投资有风险，以上内容仅供参考，不构成投资建议。基金过往业绩不预示未来表现。请在充分了解风险的前提下，结合自身风险承受能力做出投资决策。
+        </div>
+    </div>
+
+    <!-- Section 4: 标签 -->
+    <div class="tag-section width-600" id="tagSection">
+        <div class="tag-section-label">TAGS · 话题标签</div>
+        <div class="tags">
+            <span class="tag">#理财小白</span>
+            <span class="tag">#ETF定投</span>
+            <span class="tag">#职场理财</span>
+            <span class="tag">#投资入门</span>
+            <span class="tag">#复利效应</span>
+            <span class="tag">#申万宏源证券</span>
+            <span class="tag">#财富自由</span>
+            <span class="tag">#基金定投</span>
+        </div>
+    </div>
+
+</div><!-- /preview-wrapper -->
+
+<script>
+    // 标题选择交互
+    function selectTitle(el) {
+        document.querySelectorAll('.title-item').forEach(i => i.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    // 宽度切换
+    function setWidth(w, btn) {
+        document.querySelectorAll('.width-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const els = document.querySelectorAll(
+            '#titleSelector, #cardsStack, #contentSection, #tagSection'
+        );
+        els.forEach(el => {
+            el.style.width = w + 'px';
+            // 同步字号class
+            el.classList.remove('width-480', 'width-600', 'width-900');
+            el.classList.add('width-' + w);
+        });
+
+        // 更新控制条最大宽度提示
+        document.querySelector('.control-bar').style.maxWidth = Math.max(w, 480) + 'px';
+    }
+</script>
+
+</body>
+</html>
