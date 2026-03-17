@@ -292,8 +292,9 @@
             <!-- 右侧数据栏（5列） -->
             <aside class="md:col-span-4 space-y-4">
                 
-                <!-- 市场速览卡片 -->
-                <div class="bg-white rounded-lg shadow-sm border border-light-gray p-5 sticky top-4">
+                <!-- 市场速览卡片（sticky 只包裹此卡片，跟随页面滚动固定在顶部） -->
+                <div class="sticky top-4">
+                <div class="bg-white rounded-lg shadow-sm border border-light-gray p-5">
                     <h4 class="font-serif-cn text-bronze-gold font-bold mb-4 flex items-center gap-2">
                         <span class="w-2 h-2 bg-bronze-gold rounded-full"></span>
                         市场速览
@@ -354,9 +355,10 @@
                             <p class="text-xs text-charcoal/70 mt-1">适应震荡，不追涨杀跌</p>
                         </div>
                     </div>
-                </div>
+                </div><!-- /市场速览卡片 -->
+                </div><!-- /sticky 容器结束，以下卡片为正常文档流 -->
 
-                <!-- 快速导航 -->
+                <!-- 快速导航（本期要点）-->
                 <div class="bg-white rounded-lg shadow-sm border border-light-gray p-4">
                     <h4 class="text-xs font-bold text-silver-gray uppercase tracking-wider mb-3">本期要点</h4>
                     <nav class="space-y-2 text-sm">
