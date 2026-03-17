@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 获取A股市场数据 - 多数据源支持
@@ -17,45 +16,56 @@
 """
 
 import akshare as ak
-import pandas as pd
-from datetime import datetime, date
-import json
-import sys
-import os
 import time
-import requests
+import pandas as pd
+import json
+import os
+from typing import Optional, Dict, List, Any, Callable
+from datetime import datetime, timedelta
+from pathlib import Path
+import warnings
+warnings.filterwarnings('ignore')
 
-# 导入data_cache
-from data_cache import MarketDataCache
 
+class MultiSourceDataFetcher:
+    """多数据源数据获取器"""
 
-def fetch_sh_index_csindex(date_str):
-    """
-    数据源1: 使用 stock_zh_index_hist_csindex 获取上证指数历史数据（中证数据）
-
-    Args:
-        date_str: 日期字符串，格式 'YYYY-MM-DD'
-
-    Returns:
-        dict or None: 指数数据，失败返回None
-    """
-    try:
-        date_num = date_str.replace('-', '')
-        df = ak.stock_zh_index_hist_csindex(symbol='000001', start_date=date_num, end_date=date_num)
-
-        if df.empty:
-            return None
-
-        row = df.iloc[0]
-        return {
-            'close': float(row['收盘']),
-            'open': float(row['开盘']),
-            'high': float(row['最高']),
-            'low': float(row['最低']),
-            'change': float(row['涨跌']),
-            'change_pct': float(row['涨跌幅']),
-            'amount': float(row['成交金额']),
-            'source': 'akshare.csindex'
+    # 数据源配置
+    DATA_SOURCES = {
+        'realtime_quotes': {
+            'name': '实时行情',
+            'sources': [
+                ('东方财富', 'stock_zh_a_spot_em', {}),
+                ('新浪财经', 'stock_zh_a_spot', {}),
+            ]
+        },
+        'industry_board': {
+            'name': '行业板块',
+            'sources': [
+                ('东方财富', 'stock_board_industry_name_em', {}),
+                ('东方财富实时', 'stock_board_industry_spot_em', {}),
+            ]
+        },
+        'concept_board': {
+            'name': '概念板块',
+            'sources': [
+                ('东方财富', 'stock_board_concept_name_em', {}),
+                ('东方财富实时', 'stock_board_concept_spot_em', {}),
+            ]
+        },
+        'north_money': {
+            'name': '北向资金',
+            'sources': [
+                ('资金流向汇总', 'stock_hsgt_fund_flow_summary_em', {}),
+                ('沪深港通历史', 'stock_hsgt_hist_em', {}),
+            ]
+        },
+        'stock_hist': {
+            'name': '个股历史',
+            'sources': [
+                ('东方财富', 'stock_zh_a_hist', {'period': 'daily', 'adjust': ''}),
+                ('腾讯财经', 'stock_zh_a_hist_tx', {}),
+            ]
         }
     except Exception as e:
         return None
@@ -450,10 +460,9 @@ def fetch_market_data(date_str):
         'error': None
     }
 
-    try:
-        print(f"\n{'='*60}")
-        print(f"获取 {date_str} A股市场数据（多数据源模式）")
-        print(f"{'='*60}")
+    def __init__(self, max_retries: int = 2, cache_dir: str = None, cache_expire: int = 3600):
+        """
+        初始化
 
         # 1. 获取上证指数（4个数据源：中证 > 腾讯 > EM > 新浪）
         print(f"\n[1/5] 获取上证指数（4个数据源：中证 > 腾讯 > EM > 新浪）...")
@@ -612,13 +621,19 @@ def fetch_market_data(date_str):
                 'error': str(e)
             }
 
-        # 检查是否有核心数据
-        if not data['indices']:
-            data['error'] = '所有指数数据均获取失败'
-        else:
-            data['source'] = 'akshare'
+        result['_source'] = self.success_source.get('realtime_quotes', '未知')
+        return result
 
-        return data
+    def _get_default_index_data(self) -> Dict[str, Any]:
+        """获取默认指数数据（离线）"""
+        return {
+            '000001': {'name': '上证指数', 'price': 0, 'change_pct': 0, 'amount': 0},
+            '399001': {'name': '深证成指', 'price': 0, 'change_pct': 0, 'amount': 0},
+            '399006': {'name': '创业板指', 'price': 0, 'change_pct': 0, 'amount': 0},
+            '_market': {'up_count': 0, 'down_count': 0, 'flat_count': 0, 'total_amount': 0},
+            '_source': '离线数据',
+            '_offline': True
+        }
 
     except Exception as e:
         error_msg = str(e)
@@ -627,20 +642,50 @@ def fetch_market_data(date_str):
         return data
 
 
-def main():
-    """主函数 - 获取指定日期数据"""
-    if len(sys.argv) > 1:
-        date_str = sys.argv[1]
+def test_multi_source():
+    """测试多数据源获取器"""
+    print("\n" + "=" * 60)
+    print("测试多数据源数据获取器")
+    print("=" * 60 + "\n")
+
+    fetcher = MultiSourceDataFetcher(max_retries=2, cache_expire=300)
+
+    # 1. 测试指数
+    print("\n[1] 获取指数行情")
+    index_data = fetcher.get_index_quotes()
+
+    if not index_data.get('_offline'):
+        print("\n  主要指数:")
+        for code in ['000001', '399001', '399006']:
+            if code in index_data:
+                d = index_data[code]
+                print(f"    {d['name']}: {d['price']:.2f} ({d['change_pct']:+.2f}%)")
+
+        if '_market' in index_data:
+            m = index_data['_market']
+            print(f"\n  市场: 涨 {m['up_count']} / 跌 {m['down_count']} / 平 {m['flat_count']}")
+
+        print(f"\n  数据源: {index_data.get('_source', '未知')}")
     else:
-        # 默认使用今天
-        date_str = datetime.now().strftime('%Y-%m-%d')
+        print("  [离线模式] 无法获取实时数据")
 
-    data = fetch_market_data(date_str)
+    # 2. 测试行业板块
+    print("\n[2] 获取行业板块 TOP5")
+    industry_df = fetcher.get_industry_board(top_n=5)
+    if not industry_df.empty and '板块名称' in industry_df.columns:
+        for _, row in industry_df.iterrows():
+            print(f"    {row['板块名称']}: {row.get('涨跌幅', 0):+.2f}%")
+    else:
+        print("  无法获取行业板块数据")
 
-    # 保存为 JSON
-    output_file = f'/tmp/market_data_{date_str}.json'
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    # 3. 测试北向资金
+    print("\n[3] 获取北向资金")
+    north_df = fetcher.get_north_money()
+    if not north_df.empty:
+        print(f"  成功获取 {len(north_df)} 条记录")
+        print(f"  最新: {north_df.iloc[-1].to_dict() if len(north_df) > 0 else '无数据'}")
+    else:
+        print("  无法获取北向资金数据")
 
     print(f"\n{'='*60}")
     print(f"数据已保存: {output_file}")
@@ -691,4 +736,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    test_multi_source()

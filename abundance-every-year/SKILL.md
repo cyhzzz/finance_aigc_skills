@@ -6,6 +6,7 @@ dependency:
     - akshare>=1.18.0
     - pandas>=1.3.0
     - requests>=2.22.0
+    - chinese-calendar>=1.0.0
 ---
 
 # 年年有鱼市场评论撰写
@@ -21,6 +22,43 @@ dependency:
   akshare>=1.18.0
   pandas>=1.3.0
   requests>=2.22.0
+  chinese-calendar>=1.0.0
+  ```
+
+### 多数据源备用机制 ⭐ 新增
+
+本技能支持多数据源备用，当主数据源失败时自动切换到备用数据源：
+
+| 数据类型 | 主数据源 | 备用数据源 |
+|----------|----------|------------|
+| 实时行情 | 东方财富 (em) | 新浪财经 |
+| 行业板块 | 东方财富 (em) | - |
+| 概念板块 | 东方财富 (em) | - |
+| 北向资金 | 资金流向汇总 | 沪深港通历史 |
+| 个股历史 | 东方财富 (em) | 腾讯财经 (tx) |
+| 热门资讯 | 财联社主线新闻 | 东方财富新闻 / CCTV财经 |
+
+**数据来源记录**：返回数据中包含 `_source` 字段，记录成功获取数据的数据源名称
+
+### 热门财经资讯采集 ⭐ 新增
+
+本技能支持从多个财经资讯源采集热门资讯，为市场分析提供消息面支撑：
+
+- **资讯来源**：财联社主线新闻、东方财富股票新闻、CCTV财经新闻
+- **采集数量**：最多20条热门资讯
+- **资讯内容**：包含标题、摘要、来源、链接等完整信息
+- **使用方式**：
+  ```python
+  from scripts.fetch_market_data import MultiSourceDataFetcher
+
+  fetcher = MultiSourceDataFetcher()
+  # 获取热门财经资讯（最多20条）
+  news_list = fetcher.get_hot_news(max_count=20)
+
+  for news in news_list:
+      print(f"标题: {news['title']}")
+      print(f"摘要: {news['summary'][:100]}...")
+      print(f"来源: {news['source']}")
   ```
 
 ## 操作步骤
@@ -29,9 +67,34 @@ dependency:
 
 1. **获取市场数据**
    - 调用 `scripts/fetch_market_data.py` 获取指定日期的A股市场数据
+   - **多数据源备用**：当主数据源失败时，自动切换到备用数据源
    - 支持默认获取上一个交易日数据
-   - 数据包括：上证指数、深证成指、创业板指、北向资金、板块数据、涨跌统计等
-   - 输出格式：JSON 文件
+   - 数据包括：上证指数、深证成指、创业板指、北向资金、板块数据、涨跌统计、热门资讯等
+   - 输出格式：JSON 文件或字典
+   - **返回数据包含 `_source` 字段**，标识数据来源（如"东方财富"、"新浪财经"）
+
+   **使用示例**：
+   ```python
+   from scripts.fetch_market_data import MultiSourceDataFetcher
+
+   # 初始化数据获取器
+   fetcher = MultiSourceDataFetcher(max_retries=2)
+
+   # 获取指数行情
+   index_data = fetcher.get_index_quotes()
+   print(f"数据来源: {index_data.get('_source')}")
+
+   # 获取行业板块
+   industry_df = fetcher.get_industry_board(top_n=10)
+
+   # 获取北向资金
+   north_df = fetcher.get_north_money()
+
+   # 获取热门财经资讯（最多20条）⭐ 新增
+   news_list = fetcher.get_hot_news(max_count=20)
+   for news in news_list:
+       print(f"[{news['source']}] {news['title']}")
+   ```
 
 2. **数据分析**
    - 可选调用 `scripts/analysis_tool.py` 对市场数据进行统计分析
@@ -68,7 +131,7 @@ dependency:
    - 智能体根据市场数据和分析结果，按照风格指南撰写评论内容
    - 确保内容专业、客观、符合合规要求和风格规范
 
-4. **文案润色（根据微观风格特征）**
+5. **文案润色（根据微观风格特征）**
    - **润色目标**：严格按照 [references/年年有鱼创作风格_微观特征.md](references/年年有鱼创作风格_微观特征.md) 中的微观风格特征进行润色，确保体现"年年有鱼"真实的跨文本写作风格
    - **润色原则（必须严格遵守）**：
      * **不改变核心观点**：保留初稿的核心观点和判断逻辑，润色仅优化语言表达
