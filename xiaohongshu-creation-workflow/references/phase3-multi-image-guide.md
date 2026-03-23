@@ -5,7 +5,7 @@
 > **重要说明**：本指南输出的是**图像生成提示词**，不直接调用画图工具。用户收到提示词后，可自行粘贴到 Midjourney / DALL·E / Stable Diffusion / 即梦 / 可灵等 AI 绘图工具中生成图像。
 >
 > 每页提供**三种风格**的提示词供选择：
-> 1. **baoyu 手绘风格**：莫兰迪色系、手绘线条感、适合小红书风格
+> 1. **[视觉风格A]格**：莫兰迪色系、手绘线条感、适合小红书风格
 > 2. **Mondo 大师海报风格**：极简主义、高饱和度、丝网印刷美学，视觉冲击力强
 > 3. **手账手绘信息图风格**：手账日记感、莫兰迪三色严格固定、虚线连接、几何角色插图、8K超清、36种信息图类型智能匹配
 
@@ -97,14 +97,14 @@
 **设计要素**：
 - **引导语**：开户/咨询的行动召唤
 - **权益亮点**：新客专属权益（3-5个要点）
-- **品牌标识**：申万宏源品牌元素
+- **品牌标识**：[券商名称]品牌元素
 - **联系方式**：私信、企业微信等
 
 **布局建议**：
 ```
 ┌─────────────────────┐
 │  [行动召唤]         │
-│  "开户申万宏源"     │
+│  "开户[券商名称]"     │
 ├─────────────────────┤
 │  新客专属权益：     │
 │  ● 8.18%理财        │
@@ -115,7 +115,7 @@
 │  求赞收藏关注       │
 │  私信领资料包       │
 │                     │
-│  @申万宏源证券      │
+│  @[券商名称]证券      │
 └─────────────────────┘
 ```
 
@@ -132,7 +132,7 @@
 ```
 【全套视觉规格锚点】（生成后锁定，所有页共享）
 
-■ baoyu 手绘风格
+■ [视觉风格A]格
   背景色：___________（如 #FAF9F6，全套统一）
   主色调：___________（如 #9FA8DA + #A5D6A7 + #EF9A9A，全套统一）
   文字色：___________（如 #424242，全套统一）
@@ -169,7 +169,7 @@
 
 ### Step 3: 生成每页的图像提示词（三风格输出）
 
-> **每页均输出三组提示词**：① baoyu 手绘风格  ② Mondo 大师海报风格  ③ 手账手绘信息图风格
+> **每页均输出三组提示词**：① [视觉风格A]格  ② Mondo 大师海报风格  ③ 手账手绘信息图风格
 > 用户可根据喜好选择其中一组提示词，粘贴到 AI 绘图工具中使用。
 
 #### 手账手绘信息图风格：信息图类型速查表（按内容特性选择）
@@ -188,9 +188,9 @@
 
 ---
 
-#### 风格一：baoyu 手绘风格提示词
+#### 风格一：[视觉风格A]格提示词
 
-**风格说明**：baoyu 系列是为小红书深度优化的手绘风格体系，由**视觉风格（Style）× 信息布局（Layout）**两个维度自由组合，共 10 种风格 × 8 种布局 = 80+ 种组合效果。所有风格统一使用手绘线条，不使用写实或计算机生成字体。
+**风格说明**：[视觉风格A]系列是为小红书深度优化的手绘风格体系，由**视觉风格（Style）× 信息布局（Layout）**两个维度自由组合，共 10 种风格 × 8 种布局 = 80+ 种组合效果。所有风格统一使用手绘线条，不使用写实或计算机生成字体。
 
 ---
 
@@ -398,7 +398,7 @@ Create a Xiaohongshu (Little Red Book) style infographic:
 ## Style: {与全套一致}
 [Color Palette — 与封面完全相同]
 - Primary: {同封面}
-- Background: {同封面，尾页可在品牌区域局部用申万宏源品牌色强化}
+- Background: {同封面，尾页可在品牌区域局部用[券商名称]品牌色强化}
 - Accents: {同封面}
 
 ## Layout: list（尾页默认，突出权益清单）
@@ -407,14 +407,14 @@ Create a Xiaohongshu (Little Red Book) style infographic:
 - 引导语+品牌区：画布下部 25%，居中或左对齐
 
 ## Content
-- Main CTA: "开户申万宏源证券"（大号手写字体，配向上箭头图标）
+- Main CTA: "开户[券商名称]证券"（大号手写字体，配向上箭头图标）
 - Benefits List（每条配手绘小图标）:
   ● 新客理财 8.18% 预期收益率（配金币/图表图标）
   ● Level-2 高速行情 90 天免费（配折线图/雷达图标）
   ● 专业投顾一对一服务（配人物/握手图标）
   ● 增值量化指标工具礼包（配工具/齿轮图标）
 - Guide Text: "求赞收藏关注 · 私信领资料包"（小号，倒数第二行）
-- Brand: "@申万宏源证券财富管理"（最底部，手写风格）
+- Brand: "@[券商名称]证券财富管理"（最底部，手写风格）
 
 ## Typography
 - CTA Title: stroke-text描边 或 shadow-3d，大号，高可见性
@@ -593,7 +593,7 @@ high legibility, consistent with cover color scheme, 8K resolution, 3:4 portrait
 Mondo promotional poster, vertical 3:4 ratio, 8K resolution
 
 [Visual Concept]
-主题："开户引导 - 申万宏源证券"
+主题："开户引导 - [券商名称]证券"
 核心象征：向上增长的箭头 + 品牌圆形徽章 + 光芒放射（Drew Struzan 史诗感）
 
 [Designer Style]
@@ -608,9 +608,9 @@ Drew Struzan 史诗感 + Peter Saville 极简主义混合：
   ● Level-2 高速行情 90 天免费（配折线/雷达图标）
   ● 专业投顾一对一服务（配人物/握手图标）
   ● 增值量化指标工具礼包（配工具/齿轮图标）
-行动召唤：「立即开户 · 申万宏源证券」（大号手绘装饰字体）
+行动召唤：「立即开户 · [券商名称]证券」（大号手绘装饰字体）
 引导语：「求赞收藏关注 · 私信领资料包」（小号，倒数第二行）
-品牌标识：@申万宏源证券财富管理（最底部）
+品牌标识：@[券商名称]证券财富管理（最底部）
 
 [Color Palette]
 - 背景：深海军蓝 #1B2A4A（专业权威感，与封面呼应）
@@ -797,14 +797,14 @@ Generate a hand-drawn journal-style infographic, vertical 3:4 ratio, 8K resoluti
 
 [Content Design]
 - Infographic Type: Checklist (list format) — highlight benefit items with dashed connectors
-- Main CTA: "开户申万宏源证券" (large handwritten font, top section, paired with upward arrow icon)
+- Main CTA: "开户[券商名称]证券" (large handwritten font, top section, paired with upward arrow icon)
 - Benefits List (each item with simple hand-drawn line icon):
   ① 新客理财 8.18% 预期收益率 (配金币/图表图标)
   ② Level-2 高速行情 90 天免费 (配折线图/雷达图标)
   ③ 专业投顾一对一服务 (配人物/握手图标)
   ④ 增值量化指标工具礼包 (配工具/齿轮图标)
 - Guide Text: "求赞收藏关注 · 私信领资料包" (small font, second-to-last section from bottom)
-- Brand Identity: "@申万宏源证券财富管理" (very bottom, handwritten font)
+- Brand Identity: "@[券商名称]证券财富管理" (very bottom, handwritten font)
 - Character Illustration: geometric cartoon character, SHOWING POSE (both hands presenting), positioned right of CTA section
 
 [Fixed Visual Parameters - DO NOT change ANY of these]
@@ -876,12 +876,12 @@ dashed connectors, geometric cartoon character, no gradients, no color codes as 
 ### Step 4: 输出全套提示词
 
 **输出顺序**：
-1. 封面页：baoyu 风格提示词 + Mondo 风格提示词 + 手账手绘信息图风格提示词
-2. 内容页1：baoyu 风格提示词 + Mondo 风格提示词 + 手账手绘信息图风格提示词
-3. 内容页2：baoyu 风格提示词 + Mondo 风格提示词 + 手账手绘信息图风格提示词
-4. 内容页3：baoyu 风格提示词 + Mondo 风格提示词 + 手账手绘信息图风格提示词
+1. 封面页：[视觉风格A]风格提示词 + Mondo 风格提示词 + 手账手绘信息图风格提示词
+2. 内容页1：[视觉风格A]风格提示词 + Mondo 风格提示词 + 手账手绘信息图风格提示词
+3. 内容页2：[视觉风格A]风格提示词 + Mondo 风格提示词 + 手账手绘信息图风格提示词
+4. 内容页3：[视觉风格A]风格提示词 + Mondo 风格提示词 + 手账手绘信息图风格提示词
 5. ...（根据实际页数）
-6. 尾页：baoyu 风格提示词 + Mondo 风格提示词 + 手账手绘信息图风格提示词
+6. 尾页：[视觉风格A]风格提示词 + Mondo 风格提示词 + 手账手绘信息图风格提示词
 
 **输出要求**：
 - 每页三种风格的提示词都要完整输出
@@ -911,15 +911,15 @@ dashed connectors, geometric cartoon character, no gradients, no color codes as 
 
 **对应内容**：[Phase 2的封面页文字]
 
-**设计说明（baoyu风格）**：莫兰迪色系手绘，中心辐射图
+**设计说明（[视觉风格A]风格）**：莫兰迪色系手绘，中心辐射图
 **设计说明（Mondo风格）**：Saul Bass极简几何，深蓝+金色
 **设计说明（手账手绘信息图风格）**：思维导图，莫兰迪三色，几何角色插图思考状
 
 ---
 
-#### 🖌️ 风格一：baoyu 手绘风格
+#### 🖌️ 风格一：[视觉风格A]格
 
-[填入完整的baoyu封面页提示词，变量全部替换为实际内容]
+[填入完整的[视觉风格A]封面页提示词，变量全部替换为实际内容]
 
 ---
 
@@ -939,15 +939,15 @@ dashed connectors, geometric cartoon character, no gradients, no color codes as 
 
 **对应内容**：[Phase 2的笔记页一文字]
 
-**设计说明（baoyu风格）**：清单图，列出3个要点
+**设计说明（[视觉风格A]风格）**：清单图，列出3个要点
 **设计说明（Mondo风格）**：Reid Miles排版风格，高对比度图示
 **设计说明（手账手绘信息图风格）**：[根据内容选择最匹配的类型，如：线性流程图 / 四象限图 / 阶梯图]
 
 ---
 
-#### 🖌️ 风格一：baoyu 手绘风格
+#### 🖌️ 风格一：[视觉风格A]格
 
-[填入完整的baoyu内容页提示词，变量全部替换为实际内容]
+[填入完整的[视觉风格A]内容页提示词，变量全部替换为实际内容]
 
 ---
 
@@ -971,15 +971,15 @@ dashed connectors, geometric cartoon character, no gradients, no color codes as 
 
 **对应内容**：[Phase 2的尾页文字]
 
-**设计说明（baoyu风格）**：清单图，突出新客权益
+**设计说明（[视觉风格A]风格）**：清单图，突出新客权益
 **设计说明（Mondo风格）**：Peter Saville极简品牌风格
 **设计说明（手账手绘信息图风格）**：清单图，莫兰迪粉色CTA区，角色展示状
 
 ---
 
-#### 🖌️ 风格一：baoyu 手绘风格
+#### 🖌️ 风格一：[视觉风格A]格
 
-[填入完整的baoyu尾页提示词]
+[填入完整的[视觉风格A]尾页提示词]
 
 ---
 
@@ -998,7 +998,7 @@ dashed connectors, geometric cartoon character, no gradients, no color codes as 
 ### 使用说明
 
 **选择风格建议**：
-- baoyu 手绘风格：亲切自然，适合知识科普类、生活类笔记
+- [视觉风格A]格：亲切自然，适合知识科普类、生活类笔记
 - Mondo 海报风格：视觉冲击力强，适合热点类、开户推广类笔记
 - 手账手绘信息图风格：系列感最强、参数最固定，适合需要"高度统一套图"的金融科普类笔记；支持36种信息图类型智能适配，适合内容结构多样的多页笔记
 - **建议**：先生成封面三种风格对比，选定一种后全套沿用同一风格
@@ -1026,17 +1026,17 @@ dashed connectors, geometric cartoon character, no gradients, no color codes as 
 - [ ] 每页均提供了三种风格的提示词
 - [ ] Mondo 风格已根据主题选择了合适色彩方案
 - [ ] 手账手绘信息图风格每页已选定信息图类型（从36种中选择）
-- [ ] 尾页的申万宏源品牌信息准确无误
+- [ ] 尾页的[券商名称]品牌信息准确无误
 
 **提示词质量**：
-- [ ] baoyu 风格：包含背景色、主色调、文字色、线条参数
+- [ ] [视觉风格A]风格：包含背景色、主色调、文字色、线条参数
 - [ ] Mondo 风格：包含风格流派、色板、设计指令、Technical 标签
 - [ ] 手账手绘信息图风格：包含 CRITICAL INSTRUCTIONS、Fixed Visual Parameters、Technical 标签
 - [ ] 每页提示词有明确的内容设计和布局说明
 
 **一致性**：
 - [ ] 同套笔记的各页 Mondo 风格使用了相同的色彩方案
-- [ ] 各页 baoyu 风格使用了相同的色系
+- [ ] 各页 [视觉风格A]风格使用了相同的色系
 - [ ] 手账手绘信息图风格各页视觉参数完全一致（只有内容和信息图类型不同）
 - [ ] 所有提示词标注了 3:4 竖版比例和 8K 分辨率
 

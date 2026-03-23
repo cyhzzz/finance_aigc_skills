@@ -1,5 +1,5 @@
 ---
-name: baoyu-xhs-images
+name: [子技能名称]
 description: Generates Xiaohongshu (Little Red Book) infographic series with 10 visual styles and 8 layouts. Breaks content into 1-10 cartoon-style images optimized for XHS engagement. Use when user mentions "小红书图片", "XHS images", "RedNote infographics", "小红书种草", or wants social media infographics for Chinese platforms.
 ---
 
@@ -11,23 +11,23 @@ Break down complex content into eye-catching infographic series for Xiaohongshu 
 
 ```bash
 # Auto-select style and layout based on content
-/baoyu-xhs-images posts/ai-future/article.md
+/[子技能名称] posts/ai-future/article.md
 
 # Specify style
-/baoyu-xhs-images posts/ai-future/article.md --style notion
+/[子技能名称] posts/ai-future/article.md --style notion
 
 # Specify layout
-/baoyu-xhs-images posts/ai-future/article.md --layout dense
+/[子技能名称] posts/ai-future/article.md --layout dense
 
 # Combine style and layout
-/baoyu-xhs-images posts/ai-future/article.md --style notion --layout list
+/[子技能名称] posts/ai-future/article.md --style notion --layout list
 
 # Direct content input
-/baoyu-xhs-images
+/[子技能名称]
 [paste content]
 
 # Direct input with options
-/baoyu-xhs-images --style bold --layout comparison
+/[子技能名称] --style bold --layout comparison
 [paste content]
 ```
 
@@ -203,18 +203,18 @@ Use Bash to check EXTEND.md existence (priority order):
 
 ```bash
 # Check project-level first
-test -f .baoyu-skills/baoyu-xhs-images/EXTEND.md && echo "project"
+test -f .[通用名称]-skills/[子技能名称]/EXTEND.md && echo "project"
 
 # Then user-level (cross-platform: $HOME works on macOS/Linux/WSL)
-test -f "$HOME/.baoyu-skills/baoyu-xhs-images/EXTEND.md" && echo "user"
+test -f "$HOME/.[通用名称]-skills/[子技能名称]/EXTEND.md" && echo "user"
 ```
 
 ┌────────────────────────────────────────────────────┬───────────────────┐
 │                        Path                        │     Location      │
 ├────────────────────────────────────────────────────┼───────────────────┤
-│ .baoyu-skills/baoyu-xhs-images/EXTEND.md           │ Project directory │
+│ .[通用名称]-skills/[子技能名称]/EXTEND.md           │ Project directory │
 ├────────────────────────────────────────────────────┼───────────────────┤
-│ $HOME/.baoyu-skills/baoyu-xhs-images/EXTEND.md     │ User home         │
+│ $HOME/.[通用名称]-skills/[子技能名称]/EXTEND.md     │ User home         │
 └────────────────────────────────────────────────────┴───────────────────┘
 
 ┌───────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────┐

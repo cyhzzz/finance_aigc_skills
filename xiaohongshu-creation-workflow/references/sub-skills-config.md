@@ -12,7 +12,7 @@
 
 1. `content-creation-framework`
 2. `xiaohongshu-finance-writer`
-3. `baoyu-xhs-images`
+3. `[子技能名称]`
 4. `xiaohongshu-viral-analyzer`（爆款分析器）
 
 **Skills目录位置**：
@@ -71,9 +71,9 @@ path: <在此处填写实际路径，例如：/path/to/skill/SKILL.md>
 
 ---
 
-### 3. baoyu-xhs-images（小红书图文生成器）
+### 3. [子技能名称]（小红书图文生成器）
 
-**Skill名称**：`baoyu-xhs-images`
+**Skill名称**：`[子技能名称]`
 
 **默认行为**：`{auto-detect}` - 优先使用本地集成版本
 
@@ -83,12 +83,12 @@ path: <在此处填写实际路径，例如：/path/to/skill/SKILL.md>
 ```
 
 **集成位置**（本skill包内）：
-- 目录：`skills/baoyu-xhs-images/`
+- 目录：`skills/[子技能名称]/`
 - 文件：`SKILL.md`
 
 **全局位置**（备用）：
-- Windows: `C:\Users\<用户名>\.claude\skills\baoyu-xhs-images\`
-- macOS/Linux: `~/.claude/skills/baoyu-xhs-images/`
+- Windows: `C:\Users\<用户名>\.claude\skills\[子技能名称]\`
+- macOS/Linux: `~/.claude/skills/[子技能名称]/`
 
 **功能**：生成小红书图文系列，支持10种视觉风格和8种布局方式
 

@@ -1,6 +1,6 @@
 ---
 name: first-time-setup
-description: First-time setup flow for baoyu-xhs-images preferences
+description: First-time setup flow for [子技能名称] preferences
 ---
 
 # First-Time Setup
@@ -76,17 +76,17 @@ header: "Save"
 question: "Where to save preferences?"
 options:
   - label: "Project"
-    description: ".baoyu-skills/ (this project only)"
+    description: ".[通用名称]-skills/ (this project only)"
   - label: "User"
-    description: "~/.baoyu-skills/ (all projects)"
+    description: "~/.[通用名称]-skills/ (all projects)"
 ```
 
 ## Save Locations
 
 | Choice | Path | Scope |
 |--------|------|-------|
-| Project | `.baoyu-skills/baoyu-xhs-images/EXTEND.md` | Current project |
-| User | `~/.baoyu-skills/baoyu-xhs-images/EXTEND.md` | All projects |
+| Project | `.[通用名称]-skills/[子技能名称]/EXTEND.md` | Current project |
+| User | `~/.[通用名称]-skills/[子技能名称]/EXTEND.md` | All projects |
 
 ## After Setup
 

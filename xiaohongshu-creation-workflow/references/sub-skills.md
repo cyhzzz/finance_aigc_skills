@@ -65,11 +65,11 @@ Phase 1开始前读取，了解完整的创作方法论
 ### 核心特征
 
 #### 支持的账号风格
-1. **小红书主号-投教笔记**（申万宏源证券财富管理）- 官方账号，理财教育导向
-2. **小红书主号-广告笔记**（申万宏源证券财富管理）- 官方账号，开户推广导向
-3. **叮叮猫的财经笔记** - KOS账号，金融知识科普，小白友好
-4. **证券人排雷哥笔记** - KOS账号，系统化知识科普
-5. **申万宏源乐乐笔记** - KOS账号，热点驱动型科普
+1. **小红书主号-投教笔记**（[券商名称]证券财富管理）- 官方账号，理财教育导向
+2. **小红书主号-广告笔记**（[券商名称]证券财富管理）- 官方账号，开户推广导向
+3. **[账号2]的财经笔记** - [[KOS账号]账号]账号，金融知识科普，小白友好
+4. **证券人排雷哥笔记** - [[KOS账号]账号]账号，系统化知识科普
+5. **[券商名称][账号1]** - [[KOS账号]账号]账号，热点驱动型科普
 6. **仿中金公众号文风** - 公众号风格，理性分析
 
 #### 动态配置机制
@@ -125,15 +125,15 @@ Phase 2开始前读取，了解详细的小红书风格要求和输出格式
 
 ---
 
-## 3. baoyu-xhs-images（小红书图文生成器）
+## 3. [子技能名称]（小红书图文生成器）
 
 ### Skill名称
-`baoyu-xhs-images`
+`[子技能名称]`
 
 ### 路径配置
 见 [sub-skills-config.md](sub-skills-config.md)
 
-**集成位置**：`skills/baoyu-xhs-images/`
+**集成位置**：`skills/[子技能名称]/`
 
 ### 功能
 生成小红书图文系列，支持10种视觉风格和8种布局方式。
@@ -283,7 +283,7 @@ Phase 2: xiaohongshu-finance-writer
 Phase 2.5: xiaohongshu-viral-analyzer
    └─ 爆款潜力评分+优化建议
    ↓
-Phase 3: baoyu-xhs-images
+Phase 3: [子技能名称]
    └─ 生成小红书图文系列（每页一张）
    ↓
    ✋ 用户确认
@@ -333,12 +333,12 @@ Phase 3: baoyu-xhs-images
 ## 参考文档
 
 ### 小红书图文风格详细说明
-位置：`skills/baoyu-xhs-images/references/presets/<style>.md`
+位置：`skills/[子技能名称]/references/presets/<style>.md`
 获取：通过skill名称自动查找
 包含：10种视觉风格的详细配置
 
 ### 小红书图文布局详细说明
-位置：`skills/baoyu-xhs-images/references/elements/canvas.md`
+位置：`skills/[子技能名称]/references/elements/canvas.md`
 获取：通过skill名称自动查找
 包含：8种布局方式的设计规范
 
