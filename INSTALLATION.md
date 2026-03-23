@@ -64,6 +64,9 @@ npx ai-agent-skills install cyhzzz/finance_aigc_skills
 
 # 小红书创作工具
 /plugin install xiaohongshu-creator@claude-code-skills
+
+# 小红书选题调研
+/plugin install xhs-topic-scout@claude-code-skills
 ```
 
 ### Step 3: Verify Installation
@@ -178,9 +181,10 @@ cd finance_aigc_skills
 # Copy all skills
 cp -r abundance-every-year ~/.claude/skills/
 cp -r xiaohongshu-creator ~/.claude/skills/
+cp -r xhs-topic-scout ~/.claude/skills/
 
 # Or copy single skill
-cp -r xiaohongshu-creator ~/.claude/skills/
+cp -r xhs-topic-scout ~/.claude/skills/
 ```
 
 #### For Cursor
@@ -189,6 +193,7 @@ cp -r xiaohongshu-creator ~/.claude/skills/
 # Copy to project directory
 mkdir -p .cursor/skills
 cp -r xiaohongshu-creator .cursor/skills/
+cp -r xhs-topic-scout .cursor/skills/
 ```
 
 #### For VS Code/Copilot
@@ -197,6 +202,7 @@ cp -r xiaohongshu-creator .cursor/skills/
 # Copy to project directory
 mkdir -p .github/skills
 cp -r abundance-every-year .github/skills/
+cp -r xhs-topic-scout .github/skills/
 ```
 
 ### Step 3: Install Python Dependencies (abundance-every-year)
@@ -218,6 +224,7 @@ ls ~/.claude/skills/
 # You should see:
 # - abundance-every-year/
 # - xiaohongshu-creator/
+# - xhs-topic-scout/
 ```
 
 ### Test Skill Usage
@@ -234,6 +241,13 @@ In Claude Code:
 In Claude Code:
 ```
 请使用 xiaohongshu-creator 技能，为"指数基金定投"创作小红书笔记
+```
+
+#### Test xhs-topic-scout
+
+In Claude Code:
+```
+请使用 xhs-topic-scout 技能，帮我做一个小红书财经选题调研
 ```
 
 ### Test Python Tools (abundance-every-year)
@@ -320,14 +334,17 @@ curl https://github.com/cyhzzz/finance_aigc_skills
 # Remove from Claude Code
 rm -rf ~/.claude/skills/abundance-every-year/
 rm -rf ~/.claude/skills/xiaohongshu-creator/
+rm -rf ~/.claude/skills/xhs-topic-scout/
 
 # Remove from Cursor
 rm -rf .cursor/skills/abundance-every-year/
 rm -rf .cursor/skills/xiaohongshu-creator/
+rm -rf .cursor/skills/xhs-topic-scout/
 
 # Remove from VS Code
 rm -rf .github/skills/abundance-every-year/
 rm -rf .github/skills/xiaohongshu-creator/
+rm -rf .github/skills/xhs-topic-scout/
 ```
 
 ### Manual Installation
@@ -339,6 +356,7 @@ rm -rf finance_aigc_skills/
 # Remove copied skills
 rm -rf ~/.claude/skills/abundance-every-year/
 rm -rf ~/.claude/skills/xiaohongshu-creator/
+rm -rf ~/.claude/skills/xhs-topic-scout/
 ```
 
 ---
@@ -366,6 +384,6 @@ rm -rf ~/.claude/skills/xiaohongshu-creator/
 
 ---
 
-**Last Updated:** 2025-02-13
-**Skills Version:** 1.0.0
+**Last Updated:** 2026-03-23
+**Skills Version:** 1.1.0
 **Universal Installer:** [ai-agent-skills](https://github.com/skillcreatorai/Ai-Agent-Skills)

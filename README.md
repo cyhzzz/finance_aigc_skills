@@ -88,6 +88,23 @@
 
 ---
 
+### 5. xhs-topic-scout
+**小红书财经选题调研工具**
+
+通过5-phase工作流采集热点、分析小红书市场、输出可执行选题。
+
+**功能**：
+- CDP真实采集财联社/新浪/东财热点
+- 小红书市场调研获取真实竞争数据
+- 动态关键词检索，非预设
+- 双维度评分框架
+- 输出5-10个可执行选题
+
+**依赖**：
+- web-access skill（CDP浏览器操控）
+
+---
+
 ## 🚀 快速开始
 
 ### 安装所有技能
@@ -104,6 +121,9 @@ npx skills add cyhzzz/finance_aigc_skills/abundance-every-year
 
 # 小红书创作工具
 npx skills add cyhzzz/finance_aigc_skills/xiaohongshu-creator
+
+# 小红书选题调研
+npx skills add cyhzzz/finance_aigc_skills/xhs-topic-scout
 ```
 
 ### 更新技能
@@ -158,9 +178,20 @@ npx skills update cyhzzz/finance_aigc_skills
 "如何选择合适的指数基金进行定投"
 ```
 
+### xhs-topic-scout 使用示例
+
+```
+请使用 xhs-topic-scout 技能，帮我做一个小红书财经选题调研
+```
+
 ---
 
 ## 📋 版本历史
+
+- **v1.1.0** (2026-03-23)
+  - 新增 xhs-topic-scout 小红书财经选题调研工具
+  - 5-phase工作流：热点采集→选题发散→小红书调研→选题分析→输出报告
+  - 支持CDP真实采集和小红书市场调研
 
 - **v1.2.0** (2026-02-24)
   - 新增 capital-market-topic-scout 资本市场热点选题挖掘工具

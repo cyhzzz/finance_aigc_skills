@@ -52,6 +52,23 @@
 - `baoyu-xhs-images`: 10种视觉风格，8种布局方式
 - `content-creation-framework`: 通用内容创作方法论
 
+### Social Media Topic Research
+
+#### xhs-topic-scout
+
+**Path**: `xhs-topic-scout/`
+**Description**: 小红书财经选题调研工具，5-phase工作流获取可执行选题
+**Version**: 1.0.0
+**Dependencies**: web-access skill (CDP浏览器操控)
+**Install**: `/plugin install xhs-topic-scout@claude-code-skills`
+
+**Features**:
+- CDP真实采集财联社/新浪/东财热点
+- 小红书市场调研获取真实竞争数据
+- 动态关键词检索，非预设
+- 双维度评分框架（新闻热度+小红书机会）
+- 输出5-10个可执行选题
+
 ---
 
 ## Installation
@@ -74,6 +91,9 @@
 
 # 小红书创作工具
 /plugin install xiaohongshu-creator@claude-code-skills
+
+# 小红书选题调研
+/plugin install xhs-topic-scout@claude-code-skills
 ```
 
 ---
@@ -84,6 +104,7 @@ Skills use git tags for versioning:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| `v1.1.0` | 2026-03-23 | 新增 xhs-topic-scout 小红书财经选题调研工具 |
 | `v1.0.0` | 2025-02-13 | Initial release |
 
 Update all installed skills:
@@ -104,6 +125,7 @@ Update specific skill:
 |-------|---------|----------|
 | **abundance-every-year** | 生成A股收评 | 每日市场评论 |
 | **xiaohongshu-creator** | 创作小红书笔记 | 财经内容营销 |
+| **xhs-topic-scout** | 小红书选题调研 | 获取可执行选题 |
 
 ---
 
@@ -174,6 +196,6 @@ MIT License - See [LICENSE](LICENSE) file for details
 
 ---
 
-**Last Updated**: 2025-02-13
-**Skills Version**: 1.0.0
-**Total Skills**: 2
+**Last Updated**: 2026-03-23
+**Skills Version**: 1.1.0
+**Total Skills**: 3
