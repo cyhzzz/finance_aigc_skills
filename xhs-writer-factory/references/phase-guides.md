@@ -9,7 +9,7 @@
 
 **输入**：用户提供的3-5篇笔记（N篇）
 
-**输出**：`/tmp/extracted_notes/note_N/`
+**输出**：`./extracted_notes/note_N/`
 
 ---
 
@@ -325,7 +325,7 @@
 
 ### Step 3.2: 生成参考文件
 
-**输出到 `/tmp/output/{品牌名}-xhs/references/`**：
+**输出到 `./output/{品牌名}-xhs/references/`**：
 1. `references/style_guide.md` — 完整写作风格指南
 2. `references/topic_analysis.md` — 完整选题分析指南
 3. `references/image_style.md` — 完整绘画风格指南
@@ -334,7 +334,7 @@
 
 ### Step 3.3: 生成提示词模板
 
-**输出到 `/tmp/output/{品牌名}-xhs/assets/prompt_templates.md`**：
+**输出到 `./output/{品牌名}-xhs/assets/prompt_templates.md`**：
 - 标题模板库（基于原始案例提取）
 - 正文模板（含固定结尾、品牌口号）
 - 绘画提示词模板（7模块结构）
@@ -347,9 +347,9 @@
 **【必须执行】从工厂固化资源池复制必要文件到成品Skill**：
 
 从以下工厂固化资源目录复制：
-- `D:/project/skills/xhs-writer-factory/references/固化模块.md` → 合规红线
-- `D:/project/skills/xhs-writer-factory/references/creativity_rules.md` → 爆款规律库
-- `D:/project/skills/xhs-writer-factory/references/image_styles.md` → 图片风格预设
+- `references/固化模块.md` → 合规红线
+- `references/creativity_rules.md` → 爆款规律库
+- `references/image_styles.md` → 图片风格预设
 
 ---
 
@@ -442,6 +442,6 @@
 
 ### 4.5 输出确认
 
-1. **确认输出目录**：询问用户成品Skill应输出到哪个目录（默认：`/tmp/output/{品牌名}-xhs/`）
+1. **确认输出目录**：询问用户成品Skill应输出到哪个目录（默认：`./output/{品牌名}-xhs/`）
 2. **安装判断**：检查目标目录是否已存在同名Skill → 询问用户是否覆盖或重命名
 3. **最终输出**：列出文件清单，确认安装状态

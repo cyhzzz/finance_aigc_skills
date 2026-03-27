@@ -100,9 +100,9 @@ const indexData = [
 ```bash
 python scripts/render_html.py \
     --template references/{风格名}html海报模板.html \
-    --data /tmp/market_data_20260325.json \
-    --article /tmp/article_final.md \
-    --output /tmp/poster_20260325.html
+    --data ./market_data_20260325.json \
+    --article ./article_final.md \
+    --output ./poster_20260325.html
 ```
 
 ---

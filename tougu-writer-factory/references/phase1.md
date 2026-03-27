@@ -40,7 +40,7 @@
 
 将文章保存到临时目录，文件命名规范：
 ```
-/tmp/skill_factory_input/
+./skill_factory_input/
 ├── article_1.md
 ├── article_2.md
 └── article_3.md
@@ -56,7 +56,7 @@
 - 文章类型：收评
 - 作者：张三
 - 文章数量：3篇
-- 存档目录：/tmp/skill_factory_input/
+- 存档目录：./skill_factory_input/
 
 文章列表：
 1. 【年年有鱼】节前收官在即，鱼群高低切换待春归
