@@ -105,6 +105,54 @@
 
 ---
 
+### 6. xhs-writer-factory
+**小红书写作Skill工厂**
+
+从小红书创作者提交的3-5篇满意文章中，使用8维深度提取分析法，训练出专属写作Skill。
+
+**功能**：
+- 8维深度提取：标题/段落/句式/词汇/分析逻辑/固定表达/数据规范/数据需求
+- 风格画像：基于样本提取完整写作风格
+- 自测评循环：生成 → 对比 → 修复 → 循环，确保Skill效果达标
+- 完整输出：SKILL.md + references/ + scripts/
+
+**依赖**：
+- Python 3.7+
+- markdown
+- akshare>=1.18.0
+- pandas>=1.3.0
+
+**触发条件**：
+- "帮我建一个小红书写作skill"
+- "训练一个专属写作模板"
+- "提取我的写作风格建个skill"
+
+---
+
+### 7. tougu-writer-factory
+**投顾写作Skill工厂**
+
+从投顾提交的3-5篇满意文章中，使用8维深度提取分析法，训练出专属写作Skill。
+
+**功能**：
+- 8维深度提取：标题/段落/句式/词汇/分析逻辑/数据规范/固定表达/数据需求
+- 固化模块：市场数据获取 + 合规红线（通用模块，不需提取）
+- 自测评循环：生成 → 对比 → 修复 → 循环，确保Skill效果达标
+- 完整输出：SKILL.md + 固化模块 + references/ + scripts/
+
+**依赖**：
+- Python 3.7+
+- markdown
+- akshare>=1.18.0
+- pandas>=1.3.0
+
+**触发条件**：
+- "帮我建一个投顾写作skill"
+- "训练一个专属写市场评论的模板"
+- "提取我的写作风格建个skill"
+
+---
+
 ## 🚀 快速开始
 
 ### 安装所有技能
@@ -124,6 +172,12 @@ npx skills add cyhzzz/finance_aigc_skills/xiaohongshu-creator
 
 # 小红书选题调研
 npx skills add cyhzzz/finance_aigc_skills/xhs-topic-scout
+
+# 小红书写作工厂
+npx skills add cyhzzz/finance_aigc_skills/xhs-writer-factory
+
+# 投顾写作工厂
+npx skills add cyhzzz/finance_aigc_skills/tougu-writer-factory
 ```
 
 ### 更新技能
@@ -184,9 +238,27 @@ npx skills update cyhzzz/finance_aigc_skills
 请使用 xhs-topic-scout 技能，帮我做一个小红书财经选题调研
 ```
 
+### xhs-writer-factory 使用示例
+
+```
+请使用 xhs-writer-factory 技能，这是我写的3篇满意的小红书笔记，帮我建一个专属写作skill
+```
+
+### tougu-writer-factory 使用示例
+
+```
+请使用 tougu-writer-factory 技能，这是我写的3篇满意的收评文章，帮我建一个专属写作skill
+```
+
 ---
 
 ## 📋 版本历史
+
+- **v1.2.0** (2026-03-27)
+  - 新增 xhs-writer-factory 小红书写作Skill工厂
+  - 新增 tougu-writer-factory 投顾写作Skill工厂
+  - 8维深度提取分析法训练专属写作Skill
+  - 自测评循环确保生成质量
 
 - **v1.1.0** (2026-03-23)
   - 新增 xhs-topic-scout 小红书财经选题调研工具

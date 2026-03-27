@@ -69,6 +69,40 @@
 - 双维度评分框架（新闻热度+小红书机会）
 - 输出5-10个可执行选题
 
+### Skill Factory (Meta-Skills)
+
+#### xhs-writer-factory
+
+**Path**: `xhs-writer-factory/`
+**Description**: 小红书写作Skill工厂，从3-5篇满意文章训练专属写作Skill
+**Version**: 1.0.0
+**Dependencies**: Python 3.7+, markdown, akshare>=1.18.0, pandas>=1.3.0
+**Install**: `/plugin install xhs-writer-factory@claude-code-skills`
+
+**Features**:
+- 8维深度提取分析法
+- 风格画像自动生成
+- 自测评循环确保质量
+- 完整Skill输出
+
+**Trigger**: "帮我建一个小红书写作skill" / "训练一个专属写作模板"
+
+#### tougu-writer-factory
+
+**Path**: `tougu-writer-factory/`
+**Description**: 投顾写作Skill工厂，从3-5篇满意文章训练专属写作Skill
+**Version**: 1.0.0
+**Dependencies**: Python 3.7+, markdown, akshare>=1.18.0, pandas>=1.3.0
+**Install**: `/plugin install tougu-writer-factory@claude-code-skills`
+
+**Features**:
+- 8维深度提取分析法
+- 固化模块（市场数据+合规红线）
+- 自测评循环确保质量
+- 完整Skill输出
+
+**Trigger**: "帮我建一个投顾写作skill" / "训练一个专属写市场评论的模板"
+
 ---
 
 ## Installation
@@ -94,6 +128,12 @@
 
 # 小红书选题调研
 /plugin install xhs-topic-scout@claude-code-skills
+
+# 小红书写作工厂
+/plugin install xhs-writer-factory@claude-code-skills
+
+# 投顾写作工厂
+/plugin install tougu-writer-factory@claude-code-skills
 ```
 
 ---
@@ -104,6 +144,7 @@ Skills use git tags for versioning:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| `v1.2.0` | 2026-03-27 | 新增 xhs-writer-factory 和 tougu-writer-factory |
 | `v1.1.0` | 2026-03-23 | 新增 xhs-topic-scout 小红书财经选题调研工具 |
 | `v1.0.0` | 2025-02-13 | Initial release |
 
@@ -126,6 +167,8 @@ Update specific skill:
 | **abundance-every-year** | 生成A股收评 | 每日市场评论 |
 | **xiaohongshu-creator** | 创作小红书笔记 | 财经内容营销 |
 | **xhs-topic-scout** | 小红书选题调研 | 获取可执行选题 |
+| **xhs-writer-factory** | 训练写作Skill | 从样本学习风格 |
+| **tougu-writer-factory** | 训练写作Skill | 投顾专属风格 |
 
 ---
 
@@ -167,9 +210,9 @@ author: cyhzzz
 
 ### Python Dependencies
 
-For `abundance-every-year`:
+For `abundance-every-year`, `xhs-writer-factory`, `tougu-writer-factory`:
 ```bash
-pip install pandas>=1.3.0 akshare>=1.18.0
+pip install pandas>=1.3.0 akshare>=1.18.0 markdown
 ```
 
 ### Sub-Skills
@@ -196,6 +239,6 @@ MIT License - See [LICENSE](LICENSE) file for details
 
 ---
 
-**Last Updated**: 2026-03-23
-**Skills Version**: 1.1.0
-**Total Skills**: 3
+**Last Updated**: 2026-03-27
+**Skills Version**: 1.2.0
+**Total Skills**: 5

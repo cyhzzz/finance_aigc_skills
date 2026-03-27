@@ -67,6 +67,12 @@ npx ai-agent-skills install cyhzzz/finance_aigc_skills
 
 # 小红书选题调研
 /plugin install xhs-topic-scout@claude-code-skills
+
+# 小红书写作工厂
+/plugin install xhs-writer-factory@claude-code-skills
+
+# 投顾写作工厂
+/plugin install tougu-writer-factory@claude-code-skills
 ```
 
 ### Step 3: Verify Installation
@@ -182,9 +188,12 @@ cd finance_aigc_skills
 cp -r abundance-every-year ~/.claude/skills/
 cp -r xiaohongshu-creator ~/.claude/skills/
 cp -r xhs-topic-scout ~/.claude/skills/
+cp -r xhs-writer-factory ~/.claude/skills/
+cp -r tougu-writer-factory ~/.claude/skills/
 
 # Or copy single skill
-cp -r xhs-topic-scout ~/.claude/skills/
+cp -r xhs-writer-factory ~/.claude/skills/
+cp -r tougu-writer-factory ~/.claude/skills/
 ```
 
 #### For Cursor
@@ -194,6 +203,8 @@ cp -r xhs-topic-scout ~/.claude/skills/
 mkdir -p .cursor/skills
 cp -r xiaohongshu-creator .cursor/skills/
 cp -r xhs-topic-scout .cursor/skills/
+cp -r xhs-writer-factory .cursor/skills/
+cp -r tougu-writer-factory .cursor/skills/
 ```
 
 #### For VS Code/Copilot
@@ -203,6 +214,8 @@ cp -r xhs-topic-scout .cursor/skills/
 mkdir -p .github/skills
 cp -r abundance-every-year .github/skills/
 cp -r xhs-topic-scout .github/skills/
+cp -r xhs-writer-factory .github/skills/
+cp -r tougu-writer-factory .github/skills/
 ```
 
 ### Step 3: Install Python Dependencies (abundance-every-year)
@@ -225,6 +238,8 @@ ls ~/.claude/skills/
 # - abundance-every-year/
 # - xiaohongshu-creator/
 # - xhs-topic-scout/
+# - xhs-writer-factory/
+# - tougu-writer-factory/
 ```
 
 ### Test Skill Usage
@@ -248,6 +263,20 @@ In Claude Code:
 In Claude Code:
 ```
 请使用 xhs-topic-scout 技能，帮我做一个小红书财经选题调研
+```
+
+#### Test xhs-writer-factory
+
+In Claude Code:
+```
+请使用 xhs-writer-factory 技能，这是我写的3篇满意的小红书笔记，帮我建一个专属写作skill
+```
+
+#### Test tougu-writer-factory
+
+In Claude Code:
+```
+请使用 tougu-writer-factory 技能，这是我写的3篇满意的收评文章，帮我建一个专属写作skill
 ```
 
 ### Test Python Tools (abundance-every-year)
@@ -384,6 +413,6 @@ rm -rf ~/.claude/skills/xhs-topic-scout/
 
 ---
 
-**Last Updated:** 2026-03-23
-**Skills Version:** 1.1.0
+**Last Updated:** 2026-03-27
+**Skills Version:** 1.2.0
 **Universal Installer:** [ai-agent-skills](https://github.com/skillcreatorai/Ai-Agent-Skills)
