@@ -4,7 +4,7 @@
 
 ## 🌟 核心技能
 
-### 1. 爆款智坊 (wewrite-main) ⭐ 主打技能
+### 1. 爆款智坊 (viral-content-factory) ⭐ 主打技能
 **多平台新媒体内容创作套件**
 
 一句话创作，自动生成适配微信公众号 / 小红书 / 微博 / 知乎 / 头条 / 短视频脚本的多平台内容。
@@ -133,7 +133,7 @@ npx skills add cyhzzz/finance_aigc_skills
 
 ```bash
 # 爆款智坊（推荐）
-npx skills add cyhzzz/finance_aigc_skills/wewrite-main
+npx skills add cyhzzz/finance_aigc_skills/viral-content-factory
 
 # 金融投顾工具
 npx skills add cyhzzz/finance_aigc_skills/abundance-every-year
