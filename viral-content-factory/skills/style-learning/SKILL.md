@@ -261,7 +261,8 @@ python3 {skill_dir}/scripts/fetch_article.py <url> -o \/style_samples/article_{N
 | 微博 | `references/platform_styles/weibo_style.md` |
 | 知乎 | `references/platform_styles/zhihu_style.md` |
 | 今日头条 | `references/platform_styles/toutiao_style.md` |
-| 短视频 | `references/platform_styles/video_style.md` |
+| 抖音短视频 | `references/platform_styles/douyin_style.md` |
+| 哔哩哔哩中视频 | `references/platform_styles/bilibili_style.md` |
 
 ### 各平台手册内容
 
