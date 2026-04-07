@@ -1,6 +1,8 @@
-# 爆款智坊
+# 爆款智坊 (Viral Content Factory)
 
-公众号文章全流程 AI Skill —— 从热点抓取到草稿箱推送，一句话搞定。
+多平台新媒体内容创作套件 —— 从热点抓取到多平台稿件输出，一句话搞定。
+
+**一句话创作，自动生成适配微信公众号 / 小红书 / 微博 / 知乎 / 头条 / 短视频脚本的多平台内容。**
 
 兼容 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 和 [OpenClaw](https://github.com/anthropics/openclaw) 的 skill 格式。安装后说「写一篇公众号文章」即可触发完整流程。
 
@@ -10,7 +12,7 @@
 "写一篇公众号文章"
   → 抓热点 → 选题评分 → 框架选择 → 素材采集 → 内容增强
   → 写作（真实信息锚定 + 风格注入 + 编辑锚点）
-  → SEO优化 → AI配图 → 微信排版 → 推送草稿箱
+  → SEO优化 → AI配图 → 微信排版 → 输出HTML
 ```
 
 首次使用时会引导你设置公众号风格，之后每次只需一句话。生成的文章带有 2-3 个编辑锚点——花 3-5 分钟加入你自己的话，文章就会从"AI 初稿"变成"你的作品"。
@@ -28,7 +30,7 @@
 | 文章写作 | 真实信息锚定 + 风格注入 + 编辑锚点 | `references/writing-guide.md` |
 | SEO 优化 | 标题策略 / 摘要 / 关键词 / 标签 | `references/seo-rules.md` |
 | 视觉 AI | 封面 3 创意 + 内文 3-6 配图 | `toolkit/image_gen.py` |
-| 排版发布 | 16+ 主题 + 微信兼容修复 + 暗黑模式 | `toolkit/cli.py` |
+| 排版 | 16+ 主题 + 微信兼容修复 + 暗黑模式 | `toolkit/cli.py` |
 | 效果复盘 | 微信数据分析 API 回填阅读数据 | `references/effect-review.md` |
 | 范文风格库 | SICO 式 few-shot：从你的文章提取风格指纹，写作时注入 | `scripts/extract_exemplar.py` |
 | 风格飞轮 | 学习你的修改，越用越像你 | `references/learn-edits.md` |
@@ -124,15 +126,14 @@ python3 toolkit/cli.py themes
 **Claude Code**：
 
 ```bash
-git clone --depth 1 https://github.com/oaker-io/wewrite.git ~/.claude/skills/wewrite
-cd ~/.claude/skills/wewrite && pip install -r requirements.txt
+npx skills add cyhzzz/finance_aigc_skills/viral-content-factory
 ```
 
-**OpenClaw**：
+**OpenClaw / WorkBuddy**：
 
 ```bash
-git clone --depth 1 https://github.com/oaker-io/wewrite.git ~/.openclaw/skills/wewrite
-cd ~/.openclaw/skills/wewrite && pip install -r requirements.txt
+# 将 viral-content-factory 文件夹放入 skills 目录即可
+# 或使用 OpenClaw 的 skills 安装命令
 ```
 
 安装后 skill 会在每次运行时自动检查新版本。有更新时说"更新"即可升级。
@@ -143,7 +144,7 @@ cd ~/.openclaw/skills/wewrite && pip install -r requirements.txt
 cp config.example.yaml config.yaml
 ```
 
-填入微信公众号 `appid`/`secret`（推送需要）和图片 API key（生图需要）。不配也能用——自动降级为本地 HTML + 输出图片提示词。
+填入微信公众号 `appid`/`secret`（已废弃，可不配）和图片 API key（生图需要）。不配也能用——自动降级为本地 HTML + 输出图片提示词。
 
 ## 快速开始
 
@@ -166,7 +167,7 @@ cp config.example.yaml config.yaml
 ## 目录结构
 
 ```
-爆款智坊/
+viral-content-factory/
 ├── SKILL.md                  # 主管道（Step 0-7 多平台工作流）
 ├── config.example.yaml       # API 配置模板
 ├── style.example.yaml        # 风格配置模板
@@ -189,10 +190,10 @@ cp config.example.yaml config.yaml
 │   └── build_openclaw.py       # SKILL.md → OpenClaw 格式转换
 │
 ├── toolkit/                  # Markdown → 微信工具链
-│   ├── cli.py                  # CLI（preview / publish / gallery / themes / image-post / learn-theme）
+│   ├── cli.py                  # CLI（preview / gallery / themes / image-post / learn-theme）
 │   ├── converter.py            # Markdown → 内联样式 HTML + 微信兼容修复
 │   ├── theme.py                # YAML 主题引擎
-│   ├── publisher.py            # 微信草稿箱 API + 小绿书图片帖
+│   ├── publisher.py            # 微信草稿箱 API（已废弃）+ 小绿书图片帖
 │   ├── wechat_api.py           # access_token / 图片上传
 │   ├── image_gen.py            # AI 图片生成（9 provider，自动 fallback）
 │   └── themes/                 # 16+ 排版主题（含暗黑模式，可从文章学习新增）
@@ -236,7 +237,7 @@ Step 5  SEO 优化 → 质量验证
   ↓
 Step 6  视觉 AI（封面 + 内文配图）
   ↓
-Step 7  预检 + 排版 + 发布（16 主题 + 微信兼容修复）
+Step 7  预检 + 排版 + HTML输出（16 主题 + 微信兼容修复）
   ↓
 Step 8  写入历史 → 回复用户（含编辑建议 + 飞轮提示）
 ```
@@ -251,9 +252,6 @@ python3 toolkit/cli.py preview article.md --theme sspai
 
 # 主题画廊
 python3 toolkit/cli.py gallery
-
-# 发布草稿箱
-python3 toolkit/cli.py publish article.md --cover cover.png --title "标题"
 
 # 小绿书/图片帖（横滑轮播，3:4 比例，最多 20 张）
 python3 toolkit/cli.py image-post photo1.jpg photo2.jpg photo3.jpg -t "周末探店" -c "在望京发现的宝藏咖啡馆"

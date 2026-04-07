@@ -1,7 +1,7 @@
 # 爆款智坊 配置
 # 复制为 config.yaml 并填入你的信息
 
-# 微信公众号 API（发布草稿 + 数据统计必需）
+# 微信公众号 API（已废弃，仅图片上传功能需要）
 wechat:
   appid: "wx_your_appid"
   secret: "your_appsecret"
